@@ -24,7 +24,7 @@ public class TestController {
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/admin")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> test() {
+    public ResponseEntity<String> admin() {
         return ResponseEntity.ok("test admin");
     }
 
