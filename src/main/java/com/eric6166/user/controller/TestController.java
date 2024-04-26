@@ -16,16 +16,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Slf4j
 @Validated
-@RequestMapping("/admin-test")
+@RequestMapping("/test")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class AdminTestController {
+public class TestController {
 
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
-    @GetMapping("/test")
+    @GetMapping("/admin")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> test() {
-        return ResponseEntity.ok("admin-test test");
+        return ResponseEntity.ok("test admin");
     }
 
 }
