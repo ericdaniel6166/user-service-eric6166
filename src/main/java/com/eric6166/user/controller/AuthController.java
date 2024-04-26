@@ -1,6 +1,6 @@
 package com.eric6166.user.controller;
 
-import com.eric6166.common.dto.AppResponse;
+import com.eric6166.base.dto.AppResponse;
 import com.eric6166.common.dto.MessageResponse;
 import com.eric6166.user.dto.RegisterAccountRequest;
 import com.eric6166.user.service.AuthService;

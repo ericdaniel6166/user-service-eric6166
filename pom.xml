@@ -18,6 +18,11 @@
     <dependencies>
         <dependency>
             <groupId>com.eric6166</groupId>
+            <artifactId>base-service</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.eric6166</groupId>
             <artifactId>common-service</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
