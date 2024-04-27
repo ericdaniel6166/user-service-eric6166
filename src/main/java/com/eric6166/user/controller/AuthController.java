@@ -29,6 +29,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<AppResponse<MessageResponse>> register(@RequestBody @Valid RegisterAccountRequest request) throws AppValidationException {
+        log.info("AuthController.register"); // comment // for local testing
         return ResponseEntity.ok(new AppResponse<>(authService.register(request)));
     }
 

@@ -39,6 +39,7 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     @Override
     public MessageResponse register(RegisterAccountRequest request) throws AppValidationException {
+        log.info("AuthServiceImpl.register"); // comment // for local testing
         userValidation.validateAccountExisted(request);
 
         var user = new UserRepresentation();
