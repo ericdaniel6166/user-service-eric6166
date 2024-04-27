@@ -1,5 +1,6 @@
 package com.eric6166.user.dto;
 
+import com.eric6166.common.dto.AccountDto;
 import com.eric6166.common.utils.Const;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -14,7 +15,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 //@PasswordMatches
 //public class RegisterAccountRequest implements AccountDto, PasswordDto {
-public class RegisterAccountRequest {
+public class RegisterAccountRequest implements AccountDto {
     @NotBlank
     @Size(max = Const.DEFAULT_SIZE_MAX_STRING)
     String username;

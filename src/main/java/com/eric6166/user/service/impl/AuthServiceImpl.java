@@ -1,11 +1,13 @@
 package com.eric6166.user.service.impl;
 
 import com.eric6166.common.dto.MessageResponse;
+import com.eric6166.common.exception.AppValidationException;
 import com.eric6166.common.utils.MessageConstant;
 import com.eric6166.keycloak.service.KeycloakService;
 import com.eric6166.security.utils.SecurityConst;
 import com.eric6166.user.dto.RegisterAccountRequest;
 import com.eric6166.user.service.AuthService;
+import com.eric6166.user.validation.UserValidation;
 import jakarta.ws.rs.WebApplicationException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -31,14 +33,13 @@ import java.util.Collections;
 public class AuthServiceImpl implements AuthService {
 
     KeycloakService keycloakService;
-//    UserValidation userValidation;
+    UserValidation userValidation;
     MessageSource messageSource;
 
     @Transactional
     @Override
-//    public MessageResponse register(RegisterAccountRequest request) throws AppValidationException {
-    public MessageResponse register(RegisterAccountRequest request) {
-//        userValidation.validateAccountExisted(request);
+    public MessageResponse register(RegisterAccountRequest request) throws AppValidationException {
+        userValidation.validateAccountExisted(request);
 
         var user = new UserRepresentation();
         user.setUsername(request.getUsername());

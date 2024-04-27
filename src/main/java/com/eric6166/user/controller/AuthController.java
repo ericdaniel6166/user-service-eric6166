@@ -2,6 +2,7 @@ package com.eric6166.user.controller;
 
 import com.eric6166.base.dto.AppResponse;
 import com.eric6166.common.dto.MessageResponse;
+import com.eric6166.common.exception.AppValidationException;
 import com.eric6166.user.dto.RegisterAccountRequest;
 import com.eric6166.user.service.AuthService;
 import jakarta.validation.Valid;
@@ -27,8 +28,7 @@ public class AuthController {
     AuthService authService;
 
     @PostMapping("/register")
-//    public ResponseEntity<?> register(@RequestBody @Valid RegisterAccountRequest request) throws AppValidationException {
-    public ResponseEntity<AppResponse<MessageResponse>> register(@RequestBody @Valid RegisterAccountRequest request) {
+    public ResponseEntity<AppResponse<MessageResponse>> register(@RequestBody @Valid RegisterAccountRequest request) throws AppValidationException {
         return ResponseEntity.ok(new AppResponse<>(authService.register(request)));
     }
 
