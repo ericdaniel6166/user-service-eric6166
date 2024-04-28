@@ -6,3 +6,5 @@ app:
   zipkin-hostname: zipkin
   inventory-service-hostname: inventory-service
   gateway-service-hostname: gateway-service
+  kafka-hostname: kafka
+  kafka-port: 29092

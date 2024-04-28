@@ -6,12 +6,10 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
-@Getter
-@Setter
+@Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 //@PasswordMatches
 //public class RegisterAccountRequest implements AccountDto, PasswordDto {
@@ -33,4 +31,12 @@ public class RegisterAccountRequest implements AccountDto {
     @NotBlank
     @Size(max = Const.DEFAULT_SIZE_MAX_STRING)
     String confirmPassword;
+
+    @Override
+    public String toString() {
+        return "RegisterAccountRequest{" +
+                "username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
 }

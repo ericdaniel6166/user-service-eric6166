@@ -1,12 +1,16 @@
 package com.eric6166.user.service.impl;
 
+import brave.Span;
+import brave.Tracer;
+import com.eric6166.common.config.kafka.AppEvent;
 import com.eric6166.common.dto.MessageResponse;
-import com.eric6166.common.exception.AppValidationException;
+import com.eric6166.common.exception.AppException;
 import com.eric6166.common.utils.MessageConstant;
 import com.eric6166.keycloak.service.KeycloakService;
 import com.eric6166.security.utils.AppSecurityUtils;
 import com.eric6166.security.utils.SecurityConst;
 import com.eric6166.user.config.feign.InventoryClient;
+import com.eric6166.user.config.kafka.KafkaProducerProps;
 import com.eric6166.user.dto.RegisterAccountRequest;
 import com.eric6166.user.service.AuthService;
 import com.eric6166.user.validation.UserValidation;
@@ -22,11 +26,14 @@ import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -39,51 +46,118 @@ public class AuthServiceImpl implements AuthService {
     MessageSource messageSource;
     InventoryClient inventoryClient;
     AppSecurityUtils appSecurityUtils;
+    KafkaTemplate<String, Object> kafkaTemplate;
+    KafkaProducerProps kafkaProducerProps;
+    Tracer tracer;
 
     @Override
-    public String testFeign(String service) {
-        log.info("test feign");
-        String response;
-        switch (service) {
-            case "inventory" -> response = inventoryClient.productTest(appSecurityUtils.getAuthorizationHeader());
-            default -> response = StringUtils.EMPTY;
+    public List<Object> testKafka(String service) throws AppException {
+        log.info("AuthServiceImpl.testKafka");
+        Span span = tracer.nextSpan().name("testKafka").start();
+        try (Tracer.SpanInScope ws = tracer.withSpanInScope(span)) {
+            var messageToDefaultTopic = String.format("topic: %s, message from: user service, to: %s service", kafkaProducerProps.getDefaultTopicName(), service);
+            var defaultTopicEvent = AppEvent.builder()
+                    .payload(messageToDefaultTopic)
+                    .uuid(UUID.randomUUID().toString())
+                    .build();
+            span.tag("defaultTopicEvent uuid", defaultTopicEvent.getUuid());
+            kafkaTemplate.send(kafkaProducerProps.getDefaultTopicName(),
+                    defaultTopicEvent);
+            span.annotate("defaultTopicEvent sent");
+            var messageToTestTopic = String.format("topic: %s, message from: user service, to: %s service", kafkaProducerProps.getTestTopicName(), service);
+            var testTopicAppEvent = AppEvent.builder()
+                    .payload(messageToTestTopic)
+                    .uuid(UUID.randomUUID().toString())
+                    .build();
+            span.tag("testTopicAppEvent uuid", testTopicAppEvent.getUuid());
+            kafkaTemplate.send(kafkaProducerProps.getTestTopicName(),
+                    testTopicAppEvent);
+            span.annotate("testTopicAppEvent sent");
+            return List.of(defaultTopicEvent, testTopicAppEvent);
+        } catch (RuntimeException e) {
+            span.error(e);
+            throw new AppException(e);
+        } finally {
+            span.finish();
         }
-        return response;
+    }
+
+    @Override
+    public String testFeign(String service) throws AppException {
+        log.info("AuthServiceImpl.testFeign");
+        Span span = tracer.nextSpan().name("testFeign").start();
+        try (Tracer.SpanInScope ws = tracer.withSpanInScope(span)) {
+            String response;
+            span.annotate("inventoryClient.productTest Start");
+            switch (service) {
+                case "inventory" -> response = inventoryClient.productTest(appSecurityUtils.getAuthorizationHeader());
+                default -> response = StringUtils.EMPTY;
+            }
+            span.annotate("inventoryClient.productTest End");
+            span.tag("inventoryClient.productTest response", response);
+            return response;
+        } catch (RuntimeException e) {
+            span.error(e);
+            throw new AppException(e);
+        } finally {
+            span.finish();
+        }
+
     }
 
     @Transactional
     @Override
-    public MessageResponse register(RegisterAccountRequest request) throws AppValidationException {
+    public MessageResponse register(RegisterAccountRequest request) throws AppException {
         log.info("AuthServiceImpl.register"); // comment // for local testing
-        userValidation.validateAccountExisted(request);
+        Span span = tracer.nextSpan().name("register").start();
+        try (Tracer.SpanInScope ws = tracer.withSpanInScope(span)) {
+            span.tag("request", request.toString());
+            span.annotate("userValidation.validateAccountExisted Start");
+            userValidation.validateAccountExisted(request);
+            span.annotate("userValidation.validateAccountExisted End");
 
-        var user = new UserRepresentation();
-        user.setUsername(request.getUsername());
-        user.setEmail(request.getEmail());
+            var user = new UserRepresentation();
+            user.setUsername(request.getUsername());
+            user.setEmail(request.getEmail());
 
-        var credential = new CredentialRepresentation();
-        credential.setTemporary(false);
-        credential.setType(CredentialRepresentation.PASSWORD);
-        credential.setValue(request.getPassword());
+            var credential = new CredentialRepresentation();
+            credential.setTemporary(false);
+            credential.setType(CredentialRepresentation.PASSWORD);
+            credential.setValue(request.getPassword());
 
-        user.setCredentials(Collections.singletonList(credential));
-        var customerOpt = keycloakService.searchGroupByName(SecurityConst.GROUP_CUSTOMER);
-        if (customerOpt.isPresent()) {
-            GroupRepresentation customer = customerOpt.get();
-            user.setGroups(Collections.singletonList(customer.getPath()));
+            user.setCredentials(Collections.singletonList(credential));
+            span.annotate("keycloakService.searchGroupByName Start");
+            var customerOpt = keycloakService.searchGroupByName(SecurityConst.GROUP_CUSTOMER);
+            span.annotate("keycloakService.searchGroupByName End");
+            if (customerOpt.isPresent()) {
+                GroupRepresentation customer = customerOpt.get();
+                user.setGroups(Collections.singletonList(customer.getPath()));
+            }
+            user.setEnabled(true); //improvement later
+            span.tag("keycloakService.createUser user username", user.getUsername());
+            span.tag("keycloakService.createUser user email", user.getEmail());
+            span.annotate("keycloakService.createUser Start");
+            var response = keycloakService.createUser(user);
+            span.annotate("keycloakService.createUser End");
+            span.tag("keycloakService.createUser response status code", String.valueOf(response.getStatusInfo().getStatusCode()));
+            span.tag("keycloakService.createUser response reason phrase", response.getStatusInfo().getReasonPhrase());
+
+            try {
+                var createdId = CreatedResponseUtil.getCreatedId(response);
+                span.tag("keycloakService.createUser response createdId", createdId);
+            } catch (WebApplicationException e) {
+                span.error(e);
+                throw new ResponseStatusException(e.getResponse().getStatus(), e.getMessage(), e);
+            }
+            var res = messageSource.getMessage(MessageConstant.MGS_RES_ACCOUNT, null, LocaleContextHolder.getLocale());
+            var msg = messageSource.getMessage(MessageConstant.MSG_INF_RESOURCE_CREATED, new String[]{res}, LocaleContextHolder.getLocale());
+            span.tag("msg", msg);
+            return new MessageResponse(StringUtils.capitalize(msg));
+        } catch (RuntimeException e) {
+            span.error(e);
+            throw new AppException(e);
+        } finally {
+            span.finish();
         }
-        user.setEnabled(true); //improvement later
-        var response = keycloakService.createUser(user);
-
-        try {
-            CreatedResponseUtil.getCreatedId(response);
-        } catch (WebApplicationException e) {
-            log.info(e.getResponse().toString());
-            throw new ResponseStatusException(e.getResponse().getStatus(), e.getMessage(), e);
-        }
-        var res = messageSource.getMessage(MessageConstant.MGS_RES_ACCOUNT, null, LocaleContextHolder.getLocale());
-        var msg = messageSource.getMessage(MessageConstant.MSG_INF_RESOURCE_CREATED, new String[]{res}, LocaleContextHolder.getLocale());
-
-        return new MessageResponse(StringUtils.capitalize(msg));
     }
 }

@@ -16,9 +16,17 @@ app:
   swagger-gateway-service-hostname: localhost # change
   swagger-info-title: User Service # change
   swagger-info-version: v1.0 # change
+  #zipkin
   zipkin-hostname: localhost
   zipkin-server-port: 9411
   zipkin-context-path: api/v2/spans
+  zipkin-endpoint: http://${app.zipkin-hostname}:${app.zipkin-server-port}/${app.zipkin-context-path}
+  #kafka
+  kafka-hostname: localhost
+  kafka-port: 9092
+  kafka-default-topic: default-topic
+  kafka-concurrency: 3
+  kafka-group-id: default-group-id
 
 security:
   enabled: true
@@ -53,6 +61,33 @@ spring:
     validate-on-migrate: true
     enabled: true
     table: schema_history
+  kafka:
+    enabled: true
+    bootstrap-servers: ${app.kafka-hostname}:${app.kafka-port}
+    template:
+      default-topic: ${app.kafka-default-topic}
+    producers:
+      test-topic:
+        topic-name: test-topic
+#      order-pending:
+#        topic-name: order-pending
+
+#    consumers:
+#      order-item-not-available:
+#        topic-name: order-item-not-available
+#        group-id: order-item-not-available-${spring.application.name}
+#        properties:
+#          concurrency: ${app.kafka-concurrency}
+#      order-processing:
+#        topic-name: order-processing
+#        group-id: order-processing-${spring.application.name}
+#        properties:
+#          concurrency: ${app.kafka-concurrency}
+#      order-payment-processing:
+#        topic-name: order-payment-processing
+#        group-id: order-payment-processing-${spring.application.name}
+#        properties:
+#          concurrency: ${app.kafka-concurrency}
 
 server:
   port: ${app.server-port}
@@ -70,13 +105,13 @@ feign:
 #        name: payment-client
 #        url: http://${app.gateway-service-hostname}:${app.gateway-service-server-port}/${app.payment-service-context-path}
 
-keycloak:
+keycloak-admin-client:
   enabled: true
   realm: spring-boot-microservices-realm
-  auth-server-url: http://${app.keycloak-host}:${app.keycloak-port}
-  resource: microservices-admin-client
-  credentials:
-    secret: 123456789
+  server-url: http://${app.keycloak-host}:${app.keycloak-port}
+  client-id: microservices-admin-client
+  client-secret: 123456789
+
 
 eureka:
   client:
@@ -153,4 +188,4 @@ management:
         include: "*"
   zipkin:
     tracing:
-      endpoint: http://${app.zipkin-hostname}:${app.zipkin-server-port}/${app.zipkin-context-path}
+      endpoint: ${app.zipkin-endpoint}
