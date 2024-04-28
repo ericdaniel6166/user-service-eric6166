@@ -4,7 +4,9 @@ import com.eric6166.common.dto.MessageResponse;
 import com.eric6166.common.exception.AppValidationException;
 import com.eric6166.common.utils.MessageConstant;
 import com.eric6166.keycloak.service.KeycloakService;
+import com.eric6166.security.utils.AppSecurityUtils;
 import com.eric6166.security.utils.SecurityConst;
+import com.eric6166.user.config.feign.InventoryClient;
 import com.eric6166.user.dto.RegisterAccountRequest;
 import com.eric6166.user.service.AuthService;
 import com.eric6166.user.validation.UserValidation;
@@ -35,6 +37,20 @@ public class AuthServiceImpl implements AuthService {
     KeycloakService keycloakService;
     UserValidation userValidation;
     MessageSource messageSource;
+    InventoryClient inventoryClient;
+    AppSecurityUtils appSecurityUtils;
+
+    @Override
+    public String testFeign(String service) {
+        log.info("test feign");
+        String response;
+        switch (service) {
+            case "inventory" -> response = inventoryClient.productTest(appSecurityUtils.getAuthorizationHeader());
+            default -> response = StringUtils.EMPTY;
+        }
+
+        return response;
+    }
 
     @Transactional
     @Override

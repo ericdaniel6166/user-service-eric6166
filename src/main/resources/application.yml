@@ -3,6 +3,7 @@ app:
   server-port: 8086 # change
   application-version: v1
   context-path: api/${app.application-name}/${app.application-version}
+  inventory-service-context-path: api/inventory/${app.application-version}
   database-hostname: localhost # change
   database-port: 5436 # change
   database-name: ${app.application-name}_service_${app.application-version}
@@ -10,11 +11,14 @@ app:
   eureka-port: 8761
   keycloak-host: localhost # change
   keycloak-port: 8090
-  api-gateway-hostname: localhost # change
-  swagger-api-gateway-hostname: localhost # change
-  api-gateway-server-port: 8181
+  gateway-service-hostname: localhost # change
+  gateway-service-server-port: 8181
+  swagger-gateway-service-hostname: localhost # change
   swagger-info-title: User Service # change
   swagger-info-version: v1.0 # change
+  zipkin-hostname: localhost
+  zipkin-server-port: 9411
+  zipkin-context-path: api/v2/spans
 
 security:
   enabled: true
@@ -55,6 +59,17 @@ server:
   servlet:
     context-path: /${app.context-path}
 
+feign:
+  client:
+    enabled: true
+    config:
+      inventory-client:
+        name: inventory-client
+        url: http://${app.gateway-service-hostname}:${app.gateway-service-server-port}/${app.inventory-service-context-path}
+#      payment-client:
+#        name: payment-client
+#        url: http://${app.gateway-service-hostname}:${app.gateway-service-server-port}/${app.payment-service-context-path}
+
 keycloak:
   enabled: true
   realm: spring-boot-microservices-realm
@@ -85,7 +100,7 @@ springdoc:
 
 swagger:
   server:
-    url: http://${app.swagger-api-gateway-hostname}:${app.api-gateway-server-port}/${app.context-path}
+    url: http://${app.swagger-gateway-service-hostname}:${app.gateway-service-server-port}/${app.context-path}
   info:
     title: ${app.swagger-info-title}
     version: ${app.swagger-info-version}
@@ -118,6 +133,12 @@ swagger:
 
 
 management:
+  tracing:
+    enabled: true
+    propagation:
+      type: b3
+    sampling:
+      probability: 1.0
   endpoint:
     health:
       show-details: always
@@ -130,3 +151,6 @@ management:
     web:
       exposure:
         include: "*"
+  zipkin:
+    tracing:
+      endpoint: http://${app.zipkin-hostname}:${app.zipkin-server-port}/${app.zipkin-context-path}

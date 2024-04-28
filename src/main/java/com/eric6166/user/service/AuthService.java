@@ -6,4 +6,6 @@ import com.eric6166.user.dto.RegisterAccountRequest;
 
 public interface AuthService {
     MessageResponse register(RegisterAccountRequest request) throws AppValidationException;
+
+    String testFeign(String service);
 }
