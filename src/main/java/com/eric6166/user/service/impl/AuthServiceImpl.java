@@ -48,7 +48,6 @@ public class AuthServiceImpl implements AuthService {
             case "inventory" -> response = inventoryClient.productTest(appSecurityUtils.getAuthorizationHeader());
             default -> response = StringUtils.EMPTY;
         }
-
         return response;
     }
 
