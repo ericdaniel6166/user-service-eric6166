@@ -35,7 +35,7 @@ public class UserValidationImpl implements UserValidation {
 
     @Override
     public void validateAccountExisted(AccountDto account) throws AppValidationException {
-        log.info("UserValidationImpl.validateAccountExisted"); // comment // for local testing
+        log.debug("UserValidationImpl.validateAccountExisted"); // comment // for local testing
         Set<ValidationErrorDetail> errorDetails = new HashSet<>();
         Optional<UserRepresentation> searchByUsername = keycloakService.searchUserByUsername(account.getUsername());
         if (searchByUsername.isPresent()) {

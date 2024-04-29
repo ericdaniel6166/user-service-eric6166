@@ -42,7 +42,7 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     @Override
     public MessageResponse register(RegisterAccountRequest request) throws AppException {
-        log.info("AuthServiceImpl.register"); // comment // for local testing
+        log.debug("AuthServiceImpl.register"); // comment // for local testing
         Span span = tracer.nextSpan().name("register").start();
         try (var ws = tracer.withSpanInScope(span)) {
             span.tag("request", request.toString());
@@ -88,13 +88,13 @@ public class AuthServiceImpl implements AuthService {
             span.tag("msg", msg);
             return new MessageResponse(StringUtils.capitalize(msg));
         } catch (AppException e) {
-            log.info("e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage()); // comment // for local testing
+            log.debug("e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage()); // comment // for local testing
             span.tag("exception class", e.getClass().getName());
             span.tag("exception message", e.getMessage());
             span.error(e);
             throw e;
         } catch (RuntimeException e) {
-            log.info("e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage()); // comment // for local testing
+            log.debug("e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage()); // comment // for local testing
             span.tag("exception class", e.getClass().getName());
             span.tag("exception message", e.getMessage());
             span.error(e);

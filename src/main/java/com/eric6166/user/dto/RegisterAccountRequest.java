@@ -2,11 +2,13 @@ package com.eric6166.user.dto;
 
 import com.eric6166.common.dto.AccountDto;
 import com.eric6166.common.utils.Const;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Data;
+import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
 @Data
@@ -26,17 +28,12 @@ public class RegisterAccountRequest implements AccountDto {
     @NotBlank
 //    @ValidPassword
     @Size(max = Const.DEFAULT_SIZE_MAX_STRING)
+    @ToString.Exclude
     String password;
 
     @NotBlank
     @Size(max = Const.DEFAULT_SIZE_MAX_STRING)
+    @ToString.Exclude
     String confirmPassword;
 
-    @Override
-    public String toString() {
-        return "RegisterAccountRequest{" +
-                "username='" + username + '\'' +
-                ", email='" + email + '\'' +
-                '}';
-    }
 }

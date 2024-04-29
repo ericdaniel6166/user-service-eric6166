@@ -8,3 +8,16 @@ app:
   gateway-service-hostname: gateway-service
   kafka-hostname: kafka
   kafka-port: 29092
+
+spring:
+  profiles:
+    active: docker
+
+logging:
+  level:
+    root: INFO
+    com.eric6166: INFO
+    org.hibernate.sql: DEBUG
+    org.hibernate.type.descriptor.sql : TRACE
+    org.apache.http: INFO
+    org.apache.kafka: WARN

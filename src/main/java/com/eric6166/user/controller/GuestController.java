@@ -1,5 +1,9 @@
 package com.eric6166.user.controller;
 
+import com.eric6166.common.exception.AppException;
+import com.eric6166.common.utils.Const;
+import com.eric6166.common.utils.TestConst;
+import com.eric6166.user.service.TestService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AccessLevel;
@@ -10,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -19,11 +24,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class GuestController {
+    TestService testService;
 
-    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/test")
     public ResponseEntity<String> test() {
         return ResponseEntity.ok("guest test");
+    }
+
+    @GetMapping("/test/feign")
+    public ResponseEntity<Object> testFeign(@RequestParam(defaultValue = TestConst.INVENTORY, required = false) String service,
+                @RequestParam(defaultValue = TestConst.PRODUCT_TEST, required = false) String method) throws AppException {
+        log.debug("TestController.testFeign");
+        return ResponseEntity.ok(testService.testFeign(service, method));
     }
 
 }

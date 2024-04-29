@@ -4,6 +4,8 @@ import brave.Span;
 import brave.Tracer;
 import com.eric6166.base.utils.BaseUtils;
 import com.eric6166.common.exception.AppException;
+import com.eric6166.common.utils.Const;
+import com.eric6166.common.utils.TestConst;
 import com.eric6166.user.service.TestService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,15 +43,16 @@ public class TestController {
 
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/feign")
-    public ResponseEntity<Object> testFeign(@RequestParam String service) throws AppException {
-        log.info("TestController.testFeign");
-        return ResponseEntity.ok(testService.testFeign(service));
+    public ResponseEntity<Object> testFeign(@RequestParam(defaultValue = TestConst.INVENTORY, required = false) String service,
+                @RequestParam(defaultValue = TestConst.PRODUCT_TEST, required = false) String method) throws AppException {
+        log.debug("TestController.testFeign");
+        return ResponseEntity.ok(testService.testFeign(service, method));
     }
 
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/kafka")
-    public ResponseEntity<Object> testKafka(@RequestParam String service) throws AppException {
-        log.info("TestController.testKafka");
+    public ResponseEntity<Object> testKafka(@RequestParam(defaultValue = TestConst.INVENTORY, required = false) String service) throws AppException {
+        log.debug("TestController.testKafka");
         return ResponseEntity.ok(testService.testKafka(service));
     }
 
@@ -57,18 +60,18 @@ public class TestController {
 //    @CircuitBreaker(name = "default", fallbackMethod = "testResilience4jFallbackMethod")
     @CircuitBreaker(name = "default")
     @GetMapping("/resilience4j")
-    public ResponseEntity<Object> testResilience4j(@RequestParam String service) throws AppException {
-        log.info("TestController.testResilience4j");
-        return ResponseEntity.ok(testService.testFeign(service));
+    public ResponseEntity<Object> testResilience4j(@RequestParam(defaultValue = TestConst.INVENTORY, required = false) String service,
+               @RequestParam(defaultValue = TestConst.PRODUCT_TEST, required = false) String method) throws AppException {
+        log.debug("TestController.testResilience4j");
+        return ResponseEntity.ok(testService.testFeign(service, method));
     }
 
     public ResponseEntity<Object> testResilience4jFallbackMethod(String service, RuntimeException exception) {
-        log.info("TestController.testResilience4jFallbackMethod");
+        log.debug("TestController.testResilience4jFallbackMethod");
         Span span = tracer.nextSpan().name("defaultFallbackMethod").start();
         try (var ws = tracer.withSpanInScope(span)) {
-            span.tag("request", service);
-            span.tag("exception class", exception.getClass().getName());
-            span.tag("exception message", exception.getMessage());
+            span.error(exception);
+            span.tag("service", service);
             return baseUtils.buildInternalServerErrorResponseExceptionEntity(exception);
         } catch (RuntimeException e) {
             span.error(e);

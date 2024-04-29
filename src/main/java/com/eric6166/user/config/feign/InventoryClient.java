@@ -15,5 +15,10 @@ public interface InventoryClient {
     @GetMapping("/product/test")
     String productTest(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization) throws AppException;
 
+    @GetMapping("/admin/test")
+    String adminTest(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization) throws AppException;
+
+
+
 
 }

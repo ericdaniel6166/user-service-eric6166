@@ -4,6 +4,8 @@ import brave.Span;
 import brave.Tracer;
 import com.eric6166.common.config.kafka.AppEvent;
 import com.eric6166.common.exception.AppException;
+import com.eric6166.common.utils.Const;
+import com.eric6166.common.utils.TestConst;
 import com.eric6166.security.utils.AppSecurityUtils;
 import com.eric6166.user.config.feign.InventoryClient;
 import com.eric6166.user.config.kafka.KafkaProducerProps;
@@ -33,7 +35,7 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public List<Object> testKafka(String service) throws AppException {
-        log.info("TestServiceImpl.testKafka");
+        log.debug("TestServiceImpl.testKafka");
         Span span = tracer.nextSpan().name("testKafka").start();
         try (var ws = tracer.withSpanInScope(span)) {
             var messageToDefaultTopic = String.format("topic: %s, message from: user service, to: %s service", kafkaProducerProps.getDefaultTopicName(), service);
@@ -56,7 +58,7 @@ public class TestServiceImpl implements TestService {
             span.annotate("testTopicAppEvent sent");
             return List.of(defaultTopicEvent, testTopicAppEvent);
         } catch (RuntimeException e) {
-            log.info("e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage());
+            log.debug("e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage());
             span.tag("exception class", e.getClass().getName());
             span.tag("exception message", e.getMessage());
             span.error(e);
@@ -67,27 +69,33 @@ public class TestServiceImpl implements TestService {
     }
 
     @Override
-    public String testFeign(String service) throws AppException {
-        log.info("TestServiceImpl.testFeign");
+    public String testFeign(String service, String method) throws AppException {
+        log.debug("TestServiceImpl.testFeign");
         Span span = tracer.nextSpan().name("testFeign").start();
         try (var ws = tracer.withSpanInScope(span)) {
             String response;
             span.annotate("inventoryClient.productTest Start");
             switch (service) {
-                case "inventory" -> response = inventoryClient.productTest(appSecurityUtils.getAuthorizationHeader());
+                case TestConst.INVENTORY -> {
+                    switch (method) {
+                        case TestConst.PRODUCT_TEST -> response = inventoryClient.productTest(appSecurityUtils.getAuthorizationHeader());
+                        case TestConst.ADMIN_TEST -> response = inventoryClient.adminTest(appSecurityUtils.getAuthorizationHeader());
+                        default -> response = StringUtils.EMPTY;
+                    }
+                }
                 default -> response = StringUtils.EMPTY;
             }
             span.annotate("inventoryClient.productTest End");
             span.tag("inventoryClient.productTest response", response);
             return response;
         } catch (AppException e) {
-            log.info("e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage()); // comment // for local testing
+            log.debug("e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage()); // comment // for local testing
             span.tag("exception class", e.getClass().getName());
             span.tag("exception message", e.getMessage());
             span.error(e);
             throw e;
         } catch (RuntimeException e) {
-            log.info("e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage());
+            log.debug("e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage());
             span.tag("exception class", e.getClass().getName());
             span.tag("exception message", e.getMessage());
             span.error(e);
