@@ -7,7 +7,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackages = { "com.eric6166" })
+@ComponentScan(basePackages = {"com.eric6166"})
 @EnableDiscoveryClient
 @EnableFeignClients
 public class UserServiceApplication {

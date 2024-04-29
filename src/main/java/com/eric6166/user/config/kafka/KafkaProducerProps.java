@@ -22,5 +22,4 @@ public class KafkaProducerProps {
     String defaultTopicName;
 
 
-
 }

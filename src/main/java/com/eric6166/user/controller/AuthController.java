@@ -1,12 +1,9 @@
 package com.eric6166.user.controller;
 
-import brave.Tracer;
 import com.eric6166.base.dto.AppResponse;
-import com.eric6166.base.utils.BaseUtils;
 import com.eric6166.common.exception.AppException;
 import com.eric6166.user.dto.RegisterAccountRequest;
 import com.eric6166.user.service.AuthService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
