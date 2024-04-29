@@ -2,15 +2,11 @@ package com.eric6166.user.service.impl;
 
 import brave.Span;
 import brave.Tracer;
-import com.eric6166.common.config.kafka.AppEvent;
 import com.eric6166.common.dto.MessageResponse;
 import com.eric6166.common.exception.AppException;
 import com.eric6166.common.utils.MessageConstant;
 import com.eric6166.keycloak.service.KeycloakService;
-import com.eric6166.security.utils.AppSecurityUtils;
 import com.eric6166.security.utils.SecurityConst;
-import com.eric6166.user.config.feign.InventoryClient;
-import com.eric6166.user.config.kafka.KafkaProducerProps;
 import com.eric6166.user.dto.RegisterAccountRequest;
 import com.eric6166.user.service.AuthService;
 import com.eric6166.user.validation.UserValidation;
@@ -26,14 +22,11 @@ import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @Slf4j
@@ -44,73 +37,14 @@ public class AuthServiceImpl implements AuthService {
     KeycloakService keycloakService;
     UserValidation userValidation;
     MessageSource messageSource;
-    InventoryClient inventoryClient;
-    AppSecurityUtils appSecurityUtils;
-    KafkaTemplate<String, Object> kafkaTemplate;
-    KafkaProducerProps kafkaProducerProps;
     Tracer tracer;
-
-    @Override
-    public List<Object> testKafka(String service) throws AppException {
-        log.info("AuthServiceImpl.testKafka");
-        Span span = tracer.nextSpan().name("testKafka").start();
-        try (Tracer.SpanInScope ws = tracer.withSpanInScope(span)) {
-            var messageToDefaultTopic = String.format("topic: %s, message from: user service, to: %s service", kafkaProducerProps.getDefaultTopicName(), service);
-            var defaultTopicEvent = AppEvent.builder()
-                    .payload(messageToDefaultTopic)
-                    .uuid(UUID.randomUUID().toString())
-                    .build();
-            span.tag("defaultTopicEvent uuid", defaultTopicEvent.getUuid());
-            kafkaTemplate.send(kafkaProducerProps.getDefaultTopicName(),
-                    defaultTopicEvent);
-            span.annotate("defaultTopicEvent sent");
-            var messageToTestTopic = String.format("topic: %s, message from: user service, to: %s service", kafkaProducerProps.getTestTopicName(), service);
-            var testTopicAppEvent = AppEvent.builder()
-                    .payload(messageToTestTopic)
-                    .uuid(UUID.randomUUID().toString())
-                    .build();
-            span.tag("testTopicAppEvent uuid", testTopicAppEvent.getUuid());
-            kafkaTemplate.send(kafkaProducerProps.getTestTopicName(),
-                    testTopicAppEvent);
-            span.annotate("testTopicAppEvent sent");
-            return List.of(defaultTopicEvent, testTopicAppEvent);
-        } catch (RuntimeException e) {
-            span.error(e);
-            throw new AppException(e);
-        } finally {
-            span.finish();
-        }
-    }
-
-    @Override
-    public String testFeign(String service) throws AppException {
-        log.info("AuthServiceImpl.testFeign");
-        Span span = tracer.nextSpan().name("testFeign").start();
-        try (Tracer.SpanInScope ws = tracer.withSpanInScope(span)) {
-            String response;
-            span.annotate("inventoryClient.productTest Start");
-            switch (service) {
-                case "inventory" -> response = inventoryClient.productTest(appSecurityUtils.getAuthorizationHeader());
-                default -> response = StringUtils.EMPTY;
-            }
-            span.annotate("inventoryClient.productTest End");
-            span.tag("inventoryClient.productTest response", response);
-            return response;
-        } catch (RuntimeException e) {
-            span.error(e);
-            throw new AppException(e);
-        } finally {
-            span.finish();
-        }
-
-    }
 
     @Transactional
     @Override
     public MessageResponse register(RegisterAccountRequest request) throws AppException {
         log.info("AuthServiceImpl.register"); // comment // for local testing
         Span span = tracer.nextSpan().name("register").start();
-        try (Tracer.SpanInScope ws = tracer.withSpanInScope(span)) {
+        try (var ws = tracer.withSpanInScope(span)) {
             span.tag("request", request.toString());
             span.annotate("userValidation.validateAccountExisted Start");
             userValidation.validateAccountExisted(request);
@@ -153,7 +87,16 @@ public class AuthServiceImpl implements AuthService {
             var msg = messageSource.getMessage(MessageConstant.MSG_INF_RESOURCE_CREATED, new String[]{res}, LocaleContextHolder.getLocale());
             span.tag("msg", msg);
             return new MessageResponse(StringUtils.capitalize(msg));
-        } catch (RuntimeException e) {
+        } catch (AppException e) {
+            log.info("e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage()); // comment // for local testing
+            span.tag("exception class", e.getClass().getName());
+            span.tag("exception message", e.getMessage());
+            span.error(e);
+            throw e;
+        }catch (RuntimeException e) {
+            log.info("e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage()); // comment // for local testing
+            span.tag("exception class", e.getClass().getName());
+            span.tag("exception message", e.getMessage());
             span.error(e);
             throw new AppException(e);
         } finally {

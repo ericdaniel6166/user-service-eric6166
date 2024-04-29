@@ -9,7 +9,4 @@ import java.util.List;
 public interface AuthService {
     MessageResponse register(RegisterAccountRequest request) throws AppException;
 
-    String testFeign(String service) throws AppException;
-
-    List<Object> testKafka(String service) throws AppException;
 }
