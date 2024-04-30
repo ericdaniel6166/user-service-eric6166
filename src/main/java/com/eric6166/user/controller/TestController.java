@@ -2,6 +2,7 @@ package com.eric6166.user.controller;
 
 import brave.Span;
 import brave.Tracer;
+import com.eric6166.base.utils.BaseUtils;
 import com.eric6166.common.exception.AppException;
 import com.eric6166.common.exception.AppExceptionUtils;
 import com.eric6166.common.utils.TestConst;
@@ -13,6 +14,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -31,6 +33,7 @@ public class TestController {
 
     TestService testService;
     AppExceptionUtils appExceptionUtils;
+    BaseUtils baseUtils;
     Tracer tracer;
 
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
@@ -72,10 +75,12 @@ public class TestController {
         try (var ws = tracer.withSpanInScope(span)) {
             span.error(exception);
             span.tag("service", service);
-            return appExceptionUtils.buildInternalServerErrorResponseExceptionEntity(exception);
+            var errorResponse = appExceptionUtils.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, exception);
+            return baseUtils.buildResponseExceptionEntity(errorResponse);
         } catch (RuntimeException e) {
             span.error(e);
-            return appExceptionUtils.buildInternalServerErrorResponseExceptionEntity(e);
+            var errorResponse = appExceptionUtils.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, exception);
+            return baseUtils.buildResponseExceptionEntity(errorResponse);
         } finally {
             span.finish();
         }
