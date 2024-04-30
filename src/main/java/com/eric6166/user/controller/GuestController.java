@@ -1,7 +1,7 @@
 package com.eric6166.user.controller;
 
-import com.eric6166.common.exception.AppException;
-import com.eric6166.common.utils.TestConst;
+import com.eric6166.base.exception.AppException;
+import com.eric6166.base.utils.TestConst;
 import com.eric6166.user.service.TestService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

@@ -2,10 +2,10 @@ package com.eric6166.user.controller;
 
 import brave.Span;
 import brave.Tracer;
+import com.eric6166.base.exception.AppException;
+import com.eric6166.base.exception.AppExceptionUtils;
 import com.eric6166.base.utils.BaseUtils;
-import com.eric6166.common.exception.AppException;
-import com.eric6166.common.exception.AppExceptionUtils;
-import com.eric6166.common.utils.TestConst;
+import com.eric6166.base.utils.TestConst;
 import com.eric6166.user.service.TestService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.swagger.v3.oas.annotations.Operation;

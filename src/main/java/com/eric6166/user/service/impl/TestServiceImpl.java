@@ -2,10 +2,10 @@ package com.eric6166.user.service.impl;
 
 import brave.Span;
 import brave.Tracer;
+import com.eric6166.base.exception.AppException;
+import com.eric6166.base.exception.AppExceptionUtils;
+import com.eric6166.base.utils.TestConst;
 import com.eric6166.common.config.kafka.AppEvent;
-import com.eric6166.common.exception.AppException;
-import com.eric6166.common.exception.AppExceptionUtils;
-import com.eric6166.common.utils.TestConst;
 import com.eric6166.security.utils.AppSecurityUtils;
 import com.eric6166.user.config.feign.InventoryClient;
 import com.eric6166.user.config.kafka.KafkaProducerProps;

@@ -2,15 +2,15 @@ package com.eric6166.user.service.impl;
 
 import brave.Span;
 import brave.Tracer;
-import com.eric6166.common.dto.MessageResponse;
-import com.eric6166.common.exception.AppException;
-import com.eric6166.common.exception.AppExceptionUtils;
-import com.eric6166.common.utils.MessageConstant;
+import com.eric6166.base.dto.MessageResponse;
+import com.eric6166.base.exception.AppException;
+import com.eric6166.base.exception.AppExceptionUtils;
+import com.eric6166.base.utils.BaseMessageConstant;
 import com.eric6166.keycloak.service.KeycloakService;
+import com.eric6166.keycloak.validation.UserValidation;
 import com.eric6166.security.utils.SecurityConst;
 import com.eric6166.user.dto.RegisterAccountRequest;
 import com.eric6166.user.service.AuthService;
-import com.eric6166.user.validation.UserValidation;
 import jakarta.ws.rs.WebApplicationException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -84,8 +84,8 @@ public class AuthServiceImpl implements AuthService {
                 span.error(e);
                 throw new ResponseStatusException(e.getResponse().getStatus(), e.getMessage(), e);
             }
-            var res = messageSource.getMessage(MessageConstant.MGS_RES_ACCOUNT, null, LocaleContextHolder.getLocale());
-            var msg = messageSource.getMessage(MessageConstant.MSG_INF_RESOURCE_CREATED, new String[]{res}, LocaleContextHolder.getLocale());
+            var res = messageSource.getMessage(BaseMessageConstant.MGS_RES_ACCOUNT, null, LocaleContextHolder.getLocale());
+            var msg = messageSource.getMessage(BaseMessageConstant.MSG_INF_RESOURCE_CREATED, new String[]{res}, LocaleContextHolder.getLocale());
             span.tag("msg", msg);
             return new MessageResponse(StringUtils.capitalize(msg));
         } catch (AppException e) {

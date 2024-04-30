@@ -1,8 +1,8 @@
 package com.eric6166.user.config.feign;
 
+import com.eric6166.base.exception.AppException;
+import com.eric6166.base.utils.Const;
 import com.eric6166.common.config.feign.FeignClientConfig;
-import com.eric6166.common.exception.AppException;
-import com.eric6166.common.utils.Const;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.GetMapping;
