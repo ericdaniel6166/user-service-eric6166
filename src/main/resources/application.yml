@@ -123,14 +123,6 @@ eureka:
   instance:
     lease-renewal-interval-in-seconds: 5
 
-#logging:
-#  level:
-#    root: INFO
-#    com.eric6166: INFO
-#    org.hibernate.sql: DEBUG
-#    org.hibernate.type.descriptor.sql : TRACE
-#    org.apache.http: INFO
-
 logging:
   level:
     root: INFO
