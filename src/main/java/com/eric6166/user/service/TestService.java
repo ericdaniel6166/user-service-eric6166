@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface TestService {
 
-    String testFeign(String service, String method) throws AppException;
+    Object testFeign(String service, String method, String... params) throws AppException;
 
     List<Object> testKafka(String service) throws AppException;
 

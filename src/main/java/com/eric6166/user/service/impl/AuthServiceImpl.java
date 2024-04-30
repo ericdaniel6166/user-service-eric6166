@@ -4,6 +4,7 @@ import brave.Span;
 import brave.Tracer;
 import com.eric6166.common.dto.MessageResponse;
 import com.eric6166.common.exception.AppException;
+import com.eric6166.common.exception.AppExceptionUtils;
 import com.eric6166.common.utils.MessageConstant;
 import com.eric6166.keycloak.service.KeycloakService;
 import com.eric6166.security.utils.SecurityConst;
@@ -89,14 +90,13 @@ public class AuthServiceImpl implements AuthService {
             return new MessageResponse(StringUtils.capitalize(msg));
         } catch (AppException e) {
             log.debug("e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage()); // comment // for local testing
-            span.tag("exception class", e.getClass().getName());
-            span.tag("exception message", e.getMessage());
+            span.tag("exception.class", e.getClass().getName());
+            span.tag("exception.rootCause", AppExceptionUtils.getAppExceptionRootCause(e).toString());
             span.error(e);
             throw e;
         } catch (RuntimeException e) {
             log.debug("e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage()); // comment // for local testing
-            span.tag("exception class", e.getClass().getName());
-            span.tag("exception message", e.getMessage());
+            span.tag("exception.class", e.getClass().getName());
             span.error(e);
             throw new AppException(e);
         } finally {

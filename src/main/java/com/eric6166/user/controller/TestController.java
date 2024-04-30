@@ -2,8 +2,8 @@ package com.eric6166.user.controller;
 
 import brave.Span;
 import brave.Tracer;
-import com.eric6166.base.utils.BaseUtils;
 import com.eric6166.common.exception.AppException;
+import com.eric6166.common.exception.AppExceptionUtils;
 import com.eric6166.common.utils.TestConst;
 import com.eric6166.user.service.TestService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
 
     TestService testService;
-    BaseUtils baseUtils;
+    AppExceptionUtils appExceptionUtils;
     Tracer tracer;
 
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
@@ -43,9 +43,10 @@ public class TestController {
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/feign")
     public ResponseEntity<Object> testFeign(@RequestParam(defaultValue = TestConst.INVENTORY, required = false) String service,
-                                            @RequestParam(defaultValue = TestConst.PRODUCT_TEST, required = false) String method) throws AppException {
+                                            @RequestParam(defaultValue = TestConst.PRODUCT_TEST, required = false) String method,
+                                            @RequestParam(name = TestConst.FIELD_PARAM, required = false) String... params) throws AppException {
         log.debug("TestController.testFeign");
-        return ResponseEntity.ok(testService.testFeign(service, method));
+        return ResponseEntity.ok(testService.testFeign(service, method, params));
     }
 
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
@@ -71,10 +72,10 @@ public class TestController {
         try (var ws = tracer.withSpanInScope(span)) {
             span.error(exception);
             span.tag("service", service);
-            return baseUtils.buildInternalServerErrorResponseExceptionEntity(exception);
+            return appExceptionUtils.buildInternalServerErrorResponseExceptionEntity(exception);
         } catch (RuntimeException e) {
             span.error(e);
-            return baseUtils.buildInternalServerErrorResponseExceptionEntity(e);
+            return appExceptionUtils.buildInternalServerErrorResponseExceptionEntity(e);
         } finally {
             span.finish();
         }
