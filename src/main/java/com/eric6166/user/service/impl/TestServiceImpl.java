@@ -4,7 +4,6 @@ import brave.Span;
 import brave.Tracer;
 import com.eric6166.common.config.kafka.AppEvent;
 import com.eric6166.common.exception.AppException;
-import com.eric6166.common.utils.Const;
 import com.eric6166.common.utils.TestConst;
 import com.eric6166.security.utils.AppSecurityUtils;
 import com.eric6166.user.config.feign.InventoryClient;

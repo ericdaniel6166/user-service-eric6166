@@ -19,6 +19,4 @@ public interface InventoryClient {
     String adminTest(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization) throws AppException;
 
 
-
-
 }

@@ -9,9 +9,9 @@ app:
   kafka-hostname: kafka
   kafka-port: 29092
 
-spring:
-  profiles:
-    active: docker
+#spring:
+#  profiles:
+#    active: docker
 
 logging:
   level:
