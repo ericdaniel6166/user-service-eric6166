@@ -41,13 +41,13 @@ public class UserValidationImpl implements UserValidation {
         if (searchByUsername.isPresent()) {
             String res = messageSource.getMessage(MessageConstant.MGS_RES_USERNAME, null, LocaleContextHolder.getLocale());
             String msg = messageSource.getMessage(MessageConstant.MSG_ERR_RESOURCE_EXISTED, new String[]{res}, LocaleContextHolder.getLocale());
-            errorDetails.add(new ValidationErrorDetail(Const.FIELD_USERNAME, null, StringUtils.capitalize(msg)));
+            errorDetails.add(new ValidationErrorDetail(Const.FIELD_USERNAME, StringUtils.capitalize(msg)));
         }
         Optional<UserRepresentation> searchByEmail = keycloakService.searchUserByEmail(account.getEmail());
         if (searchByEmail.isPresent()) {
             String res = messageSource.getMessage(MessageConstant.MGS_RES_EMAIL, null, LocaleContextHolder.getLocale());
             String msg = messageSource.getMessage(MessageConstant.MSG_ERR_RESOURCE_EXISTED, new String[]{res}, LocaleContextHolder.getLocale());
-            errorDetails.add(new ValidationErrorDetail(Const.FIELD_EMAIL, null, StringUtils.capitalize(msg)));
+            errorDetails.add(new ValidationErrorDetail(Const.FIELD_EMAIL, StringUtils.capitalize(msg)));
         }
 
         if (CollectionUtils.isNotEmpty(errorDetails)) {
