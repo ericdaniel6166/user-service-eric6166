@@ -89,7 +89,7 @@ public class AuthServiceImpl implements AuthService {
             span.tag("msg", msg);
             return new MessageResponse(StringUtils.capitalize(msg));
         } catch (AppException e) {
-            log.debug("e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage()); // comment // for local testing
+            log.debug("e: {} , rootCause: {}", e.getClass().getName(), AppExceptionUtils.getAppExceptionRootCause(e).toString()); // comment // for local testing
             span.tag("exception.class", e.getClass().getName());
             span.tag("exception.rootCause", AppExceptionUtils.getAppExceptionRootCause(e).toString());
             span.error(e);
