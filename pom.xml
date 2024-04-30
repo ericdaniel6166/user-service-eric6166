@@ -38,7 +38,7 @@
         </dependency>
         <dependency>
             <groupId>com.eric6166</groupId>
-            <artifactId>keycloak-service</artifactId>
+            <artifactId>keycloak-admin-client-service</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>

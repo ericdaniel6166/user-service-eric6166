@@ -6,7 +6,7 @@ import com.eric6166.base.dto.MessageResponse;
 import com.eric6166.base.exception.AppException;
 import com.eric6166.base.exception.AppExceptionUtils;
 import com.eric6166.base.utils.BaseMessageConstant;
-import com.eric6166.keycloak.service.KeycloakService;
+import com.eric6166.keycloak.service.KeycloakAminClientService;
 import com.eric6166.keycloak.validation.UserValidation;
 import com.eric6166.security.utils.SecurityConst;
 import com.eric6166.user.dto.RegisterAccountRequest;
@@ -35,7 +35,7 @@ import java.util.Collections;
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class AuthServiceImpl implements AuthService {
 
-    KeycloakService keycloakService;
+    KeycloakAminClientService keycloakAminClientService;
     UserValidation userValidation;
     MessageSource messageSource;
     Tracer tracer;
@@ -62,7 +62,7 @@ public class AuthServiceImpl implements AuthService {
 
             user.setCredentials(Collections.singletonList(credential));
             span.annotate("keycloakService.searchGroupByName Start");
-            var customerOpt = keycloakService.searchGroupByName(SecurityConst.GROUP_CUSTOMER);
+            var customerOpt = keycloakAminClientService.searchGroupByName(SecurityConst.GROUP_CUSTOMER);
             span.annotate("keycloakService.searchGroupByName End");
             if (customerOpt.isPresent()) {
                 GroupRepresentation customer = customerOpt.get();
@@ -72,7 +72,7 @@ public class AuthServiceImpl implements AuthService {
             span.tag("keycloakService.createUser user username", user.getUsername());
             span.tag("keycloakService.createUser user email", user.getEmail());
             span.annotate("keycloakService.createUser Start");
-            var response = keycloakService.createUser(user);
+            var response = keycloakAminClientService.createUser(user);
             span.annotate("keycloakService.createUser End");
             span.tag("keycloakService.createUser response status code", String.valueOf(response.getStatusInfo().getStatusCode()));
             span.tag("keycloakService.createUser response reason phrase", response.getStatusInfo().getReasonPhrase());
