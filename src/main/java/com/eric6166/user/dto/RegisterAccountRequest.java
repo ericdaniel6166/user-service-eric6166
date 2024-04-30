@@ -1,7 +1,7 @@
 package com.eric6166.user.dto;
 
 import com.eric6166.base.dto.AccountDto;
-import com.eric6166.base.utils.Const;
+import com.eric6166.base.utils.BaseConst;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -16,22 +16,22 @@ import lombok.experimental.FieldDefaults;
 //public class RegisterAccountRequest implements AccountDto, PasswordDto {
 public class RegisterAccountRequest implements AccountDto {
     @NotBlank
-    @Size(max = Const.DEFAULT_SIZE_MAX_STRING)
+    @Size(max = BaseConst.DEFAULT_SIZE_MAX_STRING)
     String username;
 
     @NotBlank
     @Email
-    @Size(max = Const.DEFAULT_SIZE_MAX_STRING)
+    @Size(max = BaseConst.DEFAULT_SIZE_MAX_STRING)
     String email;
 
     @NotBlank
 //    @ValidPassword
-    @Size(max = Const.DEFAULT_SIZE_MAX_STRING)
+    @Size(max = BaseConst.DEFAULT_SIZE_MAX_STRING)
     @ToString.Exclude
     String password;
 
     @NotBlank
-    @Size(max = Const.DEFAULT_SIZE_MAX_STRING)
+    @Size(max = BaseConst.DEFAULT_SIZE_MAX_STRING)
     @ToString.Exclude
     String confirmPassword;
 
