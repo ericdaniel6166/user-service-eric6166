@@ -9,6 +9,7 @@ import com.eric6166.base.utils.BaseMessageConstant;
 import com.eric6166.keycloak.service.KeycloakAminClientService;
 import com.eric6166.keycloak.validation.UserValidation;
 import com.eric6166.security.utils.SecurityConst;
+import com.eric6166.user.dto.GetTokenRequest;
 import com.eric6166.user.dto.RegisterAccountRequest;
 import com.eric6166.user.service.AuthService;
 import jakarta.ws.rs.WebApplicationException;
@@ -39,6 +40,11 @@ public class AuthServiceImpl implements AuthService {
     UserValidation userValidation;
     MessageSource messageSource;
     Tracer tracer;
+
+    @Override
+    public Object getToken(GetTokenRequest request) {
+        return null;
+    }
 
     @Transactional
     @Override

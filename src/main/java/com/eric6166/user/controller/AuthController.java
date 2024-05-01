@@ -2,6 +2,7 @@ package com.eric6166.user.controller;
 
 import com.eric6166.base.dto.AppResponse;
 import com.eric6166.base.exception.AppException;
+import com.eric6166.user.dto.GetTokenRequest;
 import com.eric6166.user.dto.RegisterAccountRequest;
 import com.eric6166.user.service.AuthService;
 import jakarta.validation.Valid;
@@ -31,5 +32,12 @@ public class AuthController {
         log.debug("AuthController.register"); // comment // for local testing
         return ResponseEntity.ok(new AppResponse<>(authService.register(request)));
     }
+
+    @PostMapping("/token")
+    public ResponseEntity<Object> getToken(@RequestBody @Valid GetTokenRequest request) throws AppException {
+        log.debug("AuthController.register"); // comment // for local testing
+        return ResponseEntity.ok(new AppResponse<>(authService.getToken(request)));
+    }
+
 
 }

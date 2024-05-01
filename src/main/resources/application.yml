@@ -11,6 +11,7 @@ app:
   eureka-port: 8761
   keycloak-host: localhost # change
   keycloak-port: 8090
+  keycloak-issuer-uri: http://${app.keycloak-host}:${app.keycloak-port}/realms/spring-boot-microservices-realm
   gateway-service-hostname: localhost # change
   gateway-service-server-port: 8181
   swagger-gateway-service-hostname: localhost # change
@@ -103,6 +104,16 @@ feign:
       inventory-client:
         name: inventory-client
         url: http://${app.gateway-service-hostname}:${app.gateway-service-server-port}/${app.inventory-service-context-path}
+      keycloak-client:
+        name: keycloak-client
+        url: ${app.keycloak-issuer-uri}
+        client-id: microservices-auth-client
+        client-secret: 123456789
+#        realm: spring-boot-microservices-realm
+#        server-url: http://${app.keycloak-host}:${app.keycloak-port}
+#        enabled: true
+#        issuer-uri: ${app.keycloak-issuer-uri}
+
 #      payment-client:
 #        name: payment-client
 #        url: http://${app.gateway-service-hostname}:${app.gateway-service-server-port}/${app.payment-service-context-path}
@@ -113,6 +124,7 @@ keycloak-admin-client:
   server-url: http://${app.keycloak-host}:${app.keycloak-port}
   client-id: microservices-admin-client
   client-secret: 123456789
+  issuer-uri: ${app.keycloak-issuer-uri}
 
 
 eureka:
@@ -128,7 +140,7 @@ logging:
     root: INFO
     com.eric6166: DEBUG
     org.hibernate.sql: DEBUG
-    org.hibernate.type.descriptor.sql : TRACE
+    org.hibernate.type.descriptor.sql: TRACE
     org.apache.http: DEBUG
   pattern:
     level: "%5p[${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
