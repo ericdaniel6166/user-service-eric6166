@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+
 @RestController
 @Slf4j
 @Validated
@@ -34,7 +36,7 @@ public class AuthController {
     }
 
     @PostMapping("/token")
-    public ResponseEntity<Object> getToken(@RequestBody @Valid GetTokenRequest request) throws AppException {
+    public ResponseEntity<Object> getToken(@RequestBody @Valid GetTokenRequest request) throws AppException, IOException {
         log.debug("AuthController.register"); // comment // for local testing
         return ResponseEntity.ok(new AppResponse<>(authService.getToken(request)));
     }

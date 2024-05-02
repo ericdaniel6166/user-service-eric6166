@@ -17,6 +17,11 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.representations.idm.CredentialRepresentation;
@@ -28,6 +33,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
+import java.util.Base64;
 import java.util.Collections;
 
 @Service
@@ -42,7 +49,22 @@ public class AuthServiceImpl implements AuthService {
     Tracer tracer;
 
     @Override
-    public Object getToken(GetTokenRequest request) {
+    public Object getToken(GetTokenRequest request) throws IOException {
+//        OkHttpClient client = new OkHttpClient().newBuilder()
+//                .build();
+//        MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
+//        RequestBody body = RequestBody.create(mediaType, "grant_type=password&scope=openid offline_access&username=admin&password=P@ssw0rd");
+//        String username = "microservices-auth-client";
+//        String password = "123456789";
+//        String credentials = username + ":" + password;
+//        String base64Credentials = Base64.getEncoder().encodeToString(credentials.getBytes());
+//        Request req = new Request.Builder()
+//                .url("http://localhost:8090/realms/spring-boot-microservices-realm/protocol/openid-connect/token")
+//                .method("POST", body)
+//                .addHeader("Content-Type", "application/x-www-form-urlencoded")
+//                .addHeader("Authorization", "Basic " + base64Credentials)
+//                .build();
+//        Response response = client.newCall(req).execute();
         return null;
     }
 
