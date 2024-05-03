@@ -5,7 +5,7 @@ import brave.Tracer;
 import com.eric6166.base.dto.MessageResponse;
 import com.eric6166.base.exception.AppException;
 import com.eric6166.base.exception.AppExceptionUtils;
-import com.eric6166.base.utils.BaseMessageConstant;
+import com.eric6166.base.utils.BaseMessageConst;
 import com.eric6166.keycloak.service.KeycloakAminClientService;
 import com.eric6166.keycloak.validation.UserValidation;
 import com.eric6166.security.utils.AppSecurityUtils;
@@ -135,8 +135,8 @@ public class AuthServiceImpl implements AuthService {
                 span.error(e);
                 throw new ResponseStatusException(e.getResponse().getStatus(), e.getMessage(), e);
             }
-            var res = messageSource.getMessage(BaseMessageConstant.MGS_RES_ACCOUNT, null, LocaleContextHolder.getLocale());
-            var msg = messageSource.getMessage(BaseMessageConstant.MSG_INF_RESOURCE_CREATED, new String[]{res}, LocaleContextHolder.getLocale());
+            var res = messageSource.getMessage(BaseMessageConst.MGS_RES_ACCOUNT, null, LocaleContextHolder.getLocale());
+            var msg = messageSource.getMessage(BaseMessageConst.MSG_INF_RESOURCE_CREATED, new String[]{res}, LocaleContextHolder.getLocale());
             span.tag("msg", msg);
             return new MessageResponse(StringUtils.capitalize(msg));
         } catch (AppException e) {

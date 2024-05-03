@@ -6,19 +6,24 @@ import com.eric6166.base.exception.AppException;
 import com.eric6166.base.exception.AppExceptionUtils;
 import com.eric6166.base.utils.BaseUtils;
 import com.eric6166.base.utils.TestConst;
+import com.eric6166.user.dto.TestUploadRequest;
 import com.eric6166.user.service.TestService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,6 +40,14 @@ public class TestController {
     AppExceptionUtils appExceptionUtils;
     BaseUtils baseUtils;
     Tracer tracer;
+
+    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping(value = "/upload", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ResponseEntity<String> testUpload(@Valid @ModelAttribute TestUploadRequest request) {
+        log.debug("TestController.testUpload");
+        testService.testUpload(request);
+        return ResponseEntity.ok("test upload");
+    }
 
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/admin")

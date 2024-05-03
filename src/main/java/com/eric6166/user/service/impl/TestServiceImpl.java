@@ -9,6 +9,7 @@ import com.eric6166.common.config.kafka.AppEvent;
 import com.eric6166.security.utils.AppSecurityUtils;
 import com.eric6166.user.config.feign.InventoryClient;
 import com.eric6166.user.config.kafka.KafkaProducerProps;
+import com.eric6166.user.dto.TestUploadRequest;
 import com.eric6166.user.service.TestService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,11 @@ public class TestServiceImpl implements TestService {
     KafkaTemplate<String, Object> kafkaTemplate;
     KafkaProducerProps kafkaProducerProps;
     Tracer tracer;
+
+    @Override
+    public void testUpload(TestUploadRequest request) {
+        log.debug("TestServiceImpl.testUpload");
+    }
 
     @Override
     public List<Object> testKafka(String service) throws AppException {
