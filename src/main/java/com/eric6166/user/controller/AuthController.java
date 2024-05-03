@@ -29,6 +29,12 @@ public class AuthController {
 
     AuthService authService;
 
+    @PostMapping("/test")
+    public ResponseEntity<Object> test() throws AppException, IOException {
+        log.debug("AuthController.test"); // comment // for local testing
+        return ResponseEntity.ok(new AppResponse<>(authService.test()));
+    }
+
     @PostMapping("/register")
     public ResponseEntity<Object> register(@RequestBody @Valid RegisterAccountRequest request) throws AppException {
         log.debug("AuthController.register"); // comment // for local testing

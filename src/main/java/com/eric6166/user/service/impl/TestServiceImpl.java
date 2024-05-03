@@ -98,7 +98,7 @@ public class TestServiceImpl implements TestService {
             span.tag(String.format("%sClient.%s response", service, method), response.toString());
             return response;
         } catch (AppException e) {
-            log.debug("e: {} , rootCause: {}", e.getClass().getName(), AppExceptionUtils.getAppExceptionRootCause(e).toString()); // comment // for local testing
+            log.debug("e: {} , rootCause: {}", e.getClass().getName(), AppExceptionUtils.getAppExceptionRootCause(e)); // comment // for local testing
             span.tag("exception.class", e.getClass().getName());
             span.tag("exception.rootCause", AppExceptionUtils.getAppExceptionRootCause(e).toString());
             span.error(e);

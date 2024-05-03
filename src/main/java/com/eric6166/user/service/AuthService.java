@@ -11,4 +11,6 @@ public interface AuthService {
     MessageResponse register(RegisterAccountRequest request) throws AppException;
 
     Object getToken(GetTokenRequest request) throws IOException;
+
+    Object test();
 }

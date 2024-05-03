@@ -167,29 +167,6 @@ swagger:
     title: ${app.swagger-info.title}
     version: ${app.swagger-info.version}
     description: Documentation ${app.swagger-info.title} ${app.swagger-info.version}
-#  security-scheme:
-#    name: bearerAuth
-#    bearer-format: JWT
-#    scheme: bearer
-
-#management:
-#  tracing:
-#    enabled: true
-#    propagation:
-#      type: b3
-#    sampling:
-#      probability: 1.0
-#  endpoints:
-#    web:
-#      exposure:
-#        include: "*"
-#  endpoint:
-#    health:
-#      show-details: always
-#  zipkin:
-#    tracing:
-#      endpoint: http://${app.zipkin.hostname}:${app.zipkin.server-port}/${app.zipkin.context-path}
-
 
 management:
   tracing:

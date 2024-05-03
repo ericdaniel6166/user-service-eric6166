@@ -8,6 +8,7 @@ import com.eric6166.base.exception.AppExceptionUtils;
 import com.eric6166.base.utils.BaseMessageConstant;
 import com.eric6166.keycloak.service.KeycloakAminClientService;
 import com.eric6166.keycloak.validation.UserValidation;
+import com.eric6166.security.utils.AppSecurityUtils;
 import com.eric6166.security.utils.SecurityConst;
 import com.eric6166.user.dto.GetTokenRequest;
 import com.eric6166.user.dto.RegisterAccountRequest;
@@ -17,11 +18,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.representations.idm.CredentialRepresentation;
@@ -34,8 +30,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.util.Base64;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -47,6 +44,32 @@ public class AuthServiceImpl implements AuthService {
     UserValidation userValidation;
     MessageSource messageSource;
     Tracer tracer;
+    AppSecurityUtils appSecurityUtils;
+
+    @Override
+    public Object test() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("username", AppSecurityUtils.getUsername());
+        response.put("email", AppSecurityUtils.getEmail());
+        response.put("sessionId", AppSecurityUtils.getSessionId());
+        response.put("authorizationHeader", appSecurityUtils.getAuthorizationHeader());
+        response.put("scope", AppSecurityUtils.getScope());
+        response.put("authorities", AppSecurityUtils.getAuthorities());
+        response.put("jwtId", AppSecurityUtils.getJwtId());
+        response.put("subject", AppSecurityUtils.getSubject());
+        response.put("audience", AppSecurityUtils.getAudience());
+        response.put("issuedAt", AppSecurityUtils.getIssuedAt());
+        response.put("expiresAt", AppSecurityUtils.getExpiresAt());
+        response.put("fullName", AppSecurityUtils.getFullName());
+        response.put("firstName", AppSecurityUtils.getFirstName());
+        response.put("lastName", AppSecurityUtils.getLastName());
+        response.put("preferredUsername", AppSecurityUtils.getPreferredUsername());
+        response.put("emailVerified", AppSecurityUtils.getEmailVerified());
+        response.put("issuer", AppSecurityUtils.getIssuer());
+        response.put("remoteAddress", AppSecurityUtils.getRemoteAddress());
+        response.put("claims", AppSecurityUtils.getClaims());
+        return response;
+    }
 
     @Override
     public Object getToken(GetTokenRequest request) throws IOException {
