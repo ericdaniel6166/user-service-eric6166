@@ -44,8 +44,8 @@ public class TestUploadRequest implements PasswordDto {
 
     @NotNull
     @ValidFileMaxSize(maxSize = 10)
-    @ValidFileExtension(extensions = {"pdf"})
-    @ValidFileMimeType(mimeTypes = {"application/pdf"})
-    MultipartFile file;
+    @ValidFileExtension(extensions = {BaseConst.EXTENSION_PDF})
+    @ValidFileMimeType(mimeTypes = {BaseConst.MIME_TYPE_PDF})
+    MultipartFile pdfFile;
 
 }
