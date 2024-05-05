@@ -53,6 +53,7 @@ spring:
   application:
     name: ${app.application-name}-service
   profiles:
+    include: aws
     active: local
   security:
     oauth2:

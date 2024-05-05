@@ -2,6 +2,7 @@ package com.eric6166.user.service.impl;
 
 import brave.Span;
 import brave.Tracer;
+import com.eric6166.aws.service.S3Service;
 import com.eric6166.base.exception.AppException;
 import com.eric6166.base.exception.AppExceptionUtils;
 import com.eric6166.base.utils.TestConst;
@@ -9,6 +10,8 @@ import com.eric6166.common.config.kafka.AppEvent;
 import com.eric6166.security.utils.AppSecurityUtils;
 import com.eric6166.user.config.feign.InventoryClient;
 import com.eric6166.user.config.kafka.KafkaProducerProps;
+import com.eric6166.user.dto.TestAWSRequest;
+import com.eric6166.user.dto.TestAWSUploadRequest;
 import com.eric6166.user.dto.TestUploadRequest;
 import com.eric6166.user.service.TestService;
 import lombok.AccessLevel;
@@ -20,7 +23,10 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -34,6 +40,41 @@ public class TestServiceImpl implements TestService {
     KafkaTemplate<String, Object> kafkaTemplate;
     KafkaProducerProps kafkaProducerProps;
     Tracer tracer;
+    S3Service s3Service;
+
+    @Override
+    public Object isBucketExistedBucket(String bucket) {
+        log.debug("TestServiceImpl.isBucketExistedBucket");
+        boolean isBucketExisted = s3Service.isBucketExisted(bucket);
+        Map<String, Object> response = new HashMap<>();
+        response.put("isBucketExisted", isBucketExisted);
+        return response;
+    }
+
+    @Override
+    public Object createBucket(TestAWSRequest request) throws AppException {
+        s3Service.createBucket(request.getBucket());
+        return "OK";
+    }
+
+    @Override
+    public Object delete(TestAWSRequest request) throws AppException {
+        s3Service.deleteBucket(request.getBucket());
+        return "OK";
+    }
+
+    @Override
+    public Object uploadObject(TestAWSUploadRequest request) throws IOException, AppException {
+        s3Service.uploadObject(request.getBucket(), request.getKey(), request.getFile());
+        return "OK";
+    }
+
+    @Override
+    public Object deleteObject(TestAWSUploadRequest request) throws AppException {
+        s3Service.deleteObject(request.getBucket(), request.getKey());
+        return "OK";
+    }
+
 
     @Override
     public void testUpload(TestUploadRequest request) {

@@ -6,6 +6,8 @@ import com.eric6166.base.exception.AppException;
 import com.eric6166.base.exception.AppExceptionUtils;
 import com.eric6166.base.utils.BaseUtils;
 import com.eric6166.base.utils.TestConst;
+import com.eric6166.user.dto.TestAWSRequest;
+import com.eric6166.user.dto.TestAWSUploadRequest;
 import com.eric6166.user.dto.TestUploadRequest;
 import com.eric6166.user.service.TestService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -21,12 +23,16 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.io.IOException;
 
 @RestController
 @Slf4j
@@ -42,7 +48,42 @@ public class TestController {
     Tracer tracer;
 
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
-    @PostMapping(value = "/upload", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @GetMapping(value = "/aws/s3/bucket")
+    public ResponseEntity<Object> isBucketExistedBucket(@RequestParam String bucket) {
+        log.debug("TestController.isBucketExistedBucket");
+        return ResponseEntity.ok(testService.isBucketExistedBucket(bucket));
+    }
+
+    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping(value = "/aws/s3/bucket")
+    public ResponseEntity<Object> createBucket(@RequestBody TestAWSRequest request) throws AppException {
+        log.debug("TestController.createBucket");
+        return ResponseEntity.ok(testService.createBucket(request));
+    }
+
+    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+    @DeleteMapping(value = "/aws/s3/bucket")
+    public ResponseEntity<Object> deleteBucket(@RequestBody TestAWSRequest request) throws AppException {
+        log.debug("TestController.createBucket");
+        return ResponseEntity.ok(testService.delete(request));
+    }
+
+    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping(value = "/aws/s3/object", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<Object> uploadObject(@ModelAttribute TestAWSUploadRequest request) throws IOException, AppException {
+        log.debug("TestController.createBucket");
+        return ResponseEntity.ok(testService.uploadObject(request));
+    }
+
+    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+    @DeleteMapping(value = "/aws/s3/object")
+    public ResponseEntity<Object> deleteObject(@RequestBody TestAWSUploadRequest request) throws AppException {
+        log.debug("TestController.createBucket");
+        return ResponseEntity.ok(testService.deleteObject(request));
+    }
+
+    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping(value = "/upload", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<String> testUpload(@Valid @ModelAttribute TestUploadRequest request) {
         log.debug("TestController.testUpload");
         testService.testUpload(request);

@@ -1,8 +1,11 @@
 package com.eric6166.user.service;
 
 import com.eric6166.base.exception.AppException;
+import com.eric6166.user.dto.TestAWSRequest;
+import com.eric6166.user.dto.TestAWSUploadRequest;
 import com.eric6166.user.dto.TestUploadRequest;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface TestService {
@@ -12,4 +15,14 @@ public interface TestService {
     List<Object> testKafka(String service) throws AppException;
 
     void testUpload(TestUploadRequest request);
+
+    Object isBucketExistedBucket(String bucket);
+
+    Object createBucket(TestAWSRequest request) throws AppException;
+
+    Object delete(TestAWSRequest request) throws AppException;
+
+    Object uploadObject(TestAWSUploadRequest request) throws IOException, AppException;
+
+    Object deleteObject(TestAWSUploadRequest request) throws AppException;
 }
