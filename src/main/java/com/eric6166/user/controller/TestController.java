@@ -64,21 +64,21 @@ public class TestController {
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     @DeleteMapping(value = "/aws/s3/bucket")
     public ResponseEntity<Object> deleteBucket(@RequestBody TestAWSRequest request) throws AppException {
-        log.debug("TestController.createBucket");
+        log.debug("TestController.deleteBucket");
         return ResponseEntity.ok(testService.deleteBucket(request));
     }
 
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping(value = "/aws/s3/object", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Object> uploadObject(@ModelAttribute TestAWSUploadRequest request) throws IOException, AppException {
-        log.debug("TestController.createBucket");
+        log.debug("TestController.uploadObject");
         return ResponseEntity.ok(testService.uploadObject(request));
     }
 
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     @DeleteMapping(value = "/aws/s3/object")
     public ResponseEntity<Object> deleteObject(@RequestBody TestAWSUploadRequest request) throws AppException {
-        log.debug("TestController.createBucket");
+        log.debug("TestController.deleteObject");
         return ResponseEntity.ok(testService.deleteObject(request));
     }
 
