@@ -3,6 +3,7 @@ package com.eric6166.user.service.impl;
 import brave.Span;
 import brave.Tracer;
 import com.eric6166.aws.service.S3Service;
+import com.eric6166.aws.service.SqsService;
 import com.eric6166.base.exception.AppException;
 import com.eric6166.base.exception.AppExceptionUtils;
 import com.eric6166.base.utils.TestConst;
@@ -12,6 +13,7 @@ import com.eric6166.user.config.feign.InventoryClient;
 import com.eric6166.user.config.kafka.KafkaProducerProps;
 import com.eric6166.user.dto.TestAWSRequest;
 import com.eric6166.user.dto.TestAWSUploadRequest;
+import com.eric6166.user.dto.TestSqsRequest;
 import com.eric6166.user.dto.TestUploadRequest;
 import com.eric6166.user.service.TestService;
 import lombok.AccessLevel;
@@ -22,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.sqs.model.QueueAttributeName;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -41,6 +44,7 @@ public class TestServiceImpl implements TestService {
     KafkaProducerProps kafkaProducerProps;
     Tracer tracer;
     S3Service s3Service;
+    SqsService sqsService;
 
     @Override
     public Object isBucketExistedBucket(String bucket) {
@@ -91,7 +95,28 @@ public class TestServiceImpl implements TestService {
         Map<String, Object> response = new HashMap<>();
         return response;
 
-        //listObject
+    }
+
+    @Override
+    public Object createQueue(TestSqsRequest request) {
+        Map<QueueAttributeName, String> queueAttributes = new HashMap<>();
+        if (request.getFifoQueue()) {
+            queueAttributes.put(QueueAttributeName.FIFO_QUEUE, Boolean.TRUE.toString());
+            queueAttributes.put(QueueAttributeName.CONTENT_BASED_DEDUPLICATION, Boolean.TRUE.toString());
+        }
+        var o = sqsService.createQueue(request.getQueueName(), queueAttributes);
+        Map<String, Object> response = new HashMap<>();
+        return response;
+    }
+
+    @Override
+    public Object getQueueUrl(String queueName) {
+        var o = sqsService.getQueueUrl(queueName);
+        Map<String, Object> response = new HashMap<>();
+        return response;
+    }
+
+    //listObject
 //        o.name(); //bucket //eric6166-test
 //        o.keyCount(); // // 2 objs -> 2 keys
 //
@@ -102,7 +127,7 @@ public class TestServiceImpl implements TestService {
 //        o.contents().get(0).size();
 //        o.contents().get(0).storageClass(); //ObjectStorageClass.STANDARD
 
-        //getobj
+    //getobj
 //        String content = IOUtils.toString(o, StandardCharsets.UTF_8);
 //        o.response().eTag();
 //        o.response().contentLength();
@@ -111,19 +136,16 @@ public class TestServiceImpl implements TestService {
 //        o.response().contentType();
 //        o.response().acceptRanges();
 
-        //upload obj
+    //upload obj
 //        o.eTag()
 //        o.serverSideEncryption()
 
-        //create bucket
+    //create bucket
 //        response.put("location", o.location());
 
-        //general, delete obj, delete bucket
+    //general, delete obj, delete bucket
 //        response.put("extendedRequestId", o.responseMetadata().extendedRequestId());
 //        response.put("requestId", o.responseMetadata().requestId());
-
-
-    }
 
     @Override
     public void testUpload(TestUploadRequest request) {

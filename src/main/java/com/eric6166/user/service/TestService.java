@@ -3,6 +3,7 @@ package com.eric6166.user.service;
 import com.eric6166.base.exception.AppException;
 import com.eric6166.user.dto.TestAWSRequest;
 import com.eric6166.user.dto.TestAWSUploadRequest;
+import com.eric6166.user.dto.TestSqsRequest;
 import com.eric6166.user.dto.TestUploadRequest;
 
 import java.io.IOException;
@@ -29,4 +30,8 @@ public interface TestService {
     Object listObject(String bucket);
 
     Object getObject(String bucket, String key) throws IOException;
+
+    Object createQueue(TestSqsRequest request);
+
+    Object getQueueUrl(String queueName);
 }

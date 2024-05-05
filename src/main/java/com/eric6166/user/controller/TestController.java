@@ -9,6 +9,7 @@ import com.eric6166.base.utils.BaseUtils;
 import com.eric6166.base.utils.TestConst;
 import com.eric6166.user.dto.TestAWSRequest;
 import com.eric6166.user.dto.TestAWSUploadRequest;
+import com.eric6166.user.dto.TestSqsRequest;
 import com.eric6166.user.dto.TestUploadRequest;
 import com.eric6166.user.service.TestService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -48,6 +49,22 @@ public class TestController {
     AppExceptionUtils appExceptionUtils;
     BaseUtils baseUtils;
     Tracer tracer;
+
+    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping(value = "/aws/sqs/queue")
+    public ResponseEntity<Object> createQueue(@RequestBody TestSqsRequest request) throws AppException {
+        log.debug("TestController.createBucket");
+        return ResponseEntity.ok(new AppResponse<>(testService.createQueue(request)));
+    }
+
+    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping(value = "/aws/sqs/queue")
+    public ResponseEntity<Object> getQueueUrl(@RequestParam String queueName) throws AppException {
+        log.debug("TestController.createBucket");
+        return ResponseEntity.ok(new AppResponse<>(testService.getQueueUrl(queueName)));
+    }
+
+
 
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping(value = "/aws/s3/bucket")

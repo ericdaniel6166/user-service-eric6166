@@ -6,10 +6,10 @@ import lombok.experimental.FieldDefaults;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TestAWSRequest {
+public class TestSqsRequest {
 
-    String bucket;
     String queueName;
+    Boolean fifoQueue;
 
 
 }
