@@ -44,7 +44,6 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public Object isBucketExistedBucket(String bucket) {
-        log.debug("TestServiceImpl.isBucketExistedBucket");
         boolean isBucketExisted = s3Service.isBucketExisted(bucket);
         Map<String, Object> response = new HashMap<>();
         response.put("isBucketExisted", isBucketExisted);
