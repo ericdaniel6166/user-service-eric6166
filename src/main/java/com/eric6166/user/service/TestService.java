@@ -25,4 +25,8 @@ public interface TestService {
     Object uploadObject(TestAWSUploadRequest request) throws IOException, AppException;
 
     Object deleteObject(TestAWSUploadRequest request) throws AppException;
+
+    Object listObject(String bucket);
+
+    Object getObject(String bucket, String key) throws IOException;
 }

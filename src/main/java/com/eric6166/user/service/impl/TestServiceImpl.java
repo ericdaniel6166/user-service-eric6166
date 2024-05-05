@@ -52,28 +52,78 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public Object createBucket(TestAWSRequest request) throws AppException {
-        s3Service.createBucket(request.getBucket());
-        return "OK";
+        var o = s3Service.createBucket(request.getBucket());
+        Map<String, Object> response = new HashMap<>();
+        return response;
     }
 
     @Override
     public Object deleteBucket(TestAWSRequest request) throws AppException {
-        s3Service.deleteBucket(request.getBucket());
-        return "OK";
+        var o = s3Service.deleteBucket(request.getBucket());
+        Map<String, Object> response = new HashMap<>();
+        return response;
     }
 
     @Override
     public Object uploadObject(TestAWSUploadRequest request) throws IOException, AppException {
-        s3Service.uploadObject(request.getBucket(), request.getKey(), request.getFile());
-        return "OK";
+        var o = s3Service.uploadObject(request.getBucket(), request.getKey(), request.getFile());
+        Map<String, Object> response = new HashMap<>();
+        return response;
     }
 
     @Override
     public Object deleteObject(TestAWSUploadRequest request) throws AppException {
-        s3Service.deleteObject(request.getBucket(), request.getKey());
-        return "OK";
+        var o = s3Service.deleteObject(request.getBucket(), request.getKey());
+        Map<String, Object> response = new HashMap<>();
+        return response;
     }
 
+    @Override
+    public Object listObject(String bucket) {
+        var o = s3Service.listObject(bucket);
+        Map<String, Object> response = new HashMap<>();
+        return response;
+    }
+
+    @Override
+    public Object getObject(String bucket, String key) throws IOException {
+        var o = s3Service.getObject(bucket, key);
+        Map<String, Object> response = new HashMap<>();
+        return response;
+
+        //listObject
+//        o.name(); //bucket //eric6166-test
+//        o.keyCount(); // // 2 objs -> 2 keys
+//
+//        o.contents().get(0);
+//        o.contents().get(0).key();
+//        o.contents().get(0).lastModified();
+//        o.contents().get(0).eTag();
+//        o.contents().get(0).size();
+//        o.contents().get(0).storageClass(); //ObjectStorageClass.STANDARD
+
+        //getobj
+//        String content = IOUtils.toString(o, StandardCharsets.UTF_8);
+//        o.response().eTag();
+//        o.response().contentLength();
+//        o.response().lastModified();
+//        o.response().serverSideEncryption();
+//        o.response().contentType();
+//        o.response().acceptRanges();
+
+        //upload obj
+//        o.eTag()
+//        o.serverSideEncryption()
+
+        //create bucket
+//        response.put("location", o.location());
+
+        //general, delete obj, delete bucket
+//        response.put("extendedRequestId", o.responseMetadata().extendedRequestId());
+//        response.put("requestId", o.responseMetadata().requestId());
+
+
+    }
 
     @Override
     public void testUpload(TestUploadRequest request) {
