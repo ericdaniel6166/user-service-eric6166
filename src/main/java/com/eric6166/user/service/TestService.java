@@ -34,4 +34,6 @@ public interface TestService {
     Object createQueue(TestSqsRequest request);
 
     Object getQueueUrl(String queueName);
+
+    Object deleteQueue(TestSqsRequest request);
 }

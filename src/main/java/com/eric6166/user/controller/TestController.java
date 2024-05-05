@@ -53,17 +53,24 @@ public class TestController {
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping(value = "/aws/sqs/queue")
     public ResponseEntity<Object> createQueue(@RequestBody TestSqsRequest request) throws AppException {
-        log.debug("TestController.createBucket");
+        log.debug("TestController.createQueue");
         return ResponseEntity.ok(new AppResponse<>(testService.createQueue(request)));
     }
 
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
-    @GetMapping(value = "/aws/sqs/queue")
-    public ResponseEntity<Object> getQueueUrl(@RequestParam String queueName) throws AppException {
-        log.debug("TestController.createBucket");
-        return ResponseEntity.ok(new AppResponse<>(testService.getQueueUrl(queueName)));
+    @DeleteMapping(value = "/aws/sqs/queue")
+    public ResponseEntity<Object> deleteQueue(@RequestBody TestSqsRequest request) throws AppException {
+        log.debug("TestController.createQueue");
+        return ResponseEntity.ok(new AppResponse<>(testService.deleteQueue(request)));
     }
 
+
+    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping(value = "/aws/sqs/queue")
+    public ResponseEntity<Object> getQueueUrl(@RequestParam String queueName) throws AppException {
+        log.debug("TestController.getQueueUrl");
+        return ResponseEntity.ok(new AppResponse<>(testService.getQueueUrl(queueName)));
+    }
 
 
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))

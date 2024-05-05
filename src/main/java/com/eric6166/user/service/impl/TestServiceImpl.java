@@ -100,7 +100,7 @@ public class TestServiceImpl implements TestService {
     @Override
     public Object createQueue(TestSqsRequest request) {
         Map<QueueAttributeName, String> queueAttributes = new HashMap<>();
-        if (request.getFifoQueue()) {
+        if (request.getFifoQueue() != null && request.getFifoQueue()) {
             queueAttributes.put(QueueAttributeName.FIFO_QUEUE, Boolean.TRUE.toString());
             queueAttributes.put(QueueAttributeName.CONTENT_BASED_DEDUPLICATION, Boolean.TRUE.toString());
         }
@@ -115,6 +115,18 @@ public class TestServiceImpl implements TestService {
         Map<String, Object> response = new HashMap<>();
         return response;
     }
+
+    @Override
+    public Object deleteQueue(TestSqsRequest request) {
+        var o = sqsService.deleteQueue(request.getQueueUrl());
+        Map<String, Object> response = new HashMap<>();
+        return response;
+    }
+
+    //    create queue
+//    getQueueUrl
+//            o.queueUrl(); //https://sqs.ap-southeast-1.amazonaws.com/891377091766/eric6166-default-test
+//            o.queueUrl(); //https://sqs.ap-southeast-1.amazonaws.com/891377091766/eric6166-default-test.fifo
 
     //listObject
 //        o.name(); //bucket //eric6166-test

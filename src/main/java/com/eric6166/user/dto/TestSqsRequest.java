@@ -9,6 +9,7 @@ import lombok.experimental.FieldDefaults;
 public class TestSqsRequest {
 
     String queueName;
+    String queueUrl;
     Boolean fifoQueue;
 
 
