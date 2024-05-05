@@ -20,7 +20,7 @@ public interface TestService {
 
     Object createBucket(TestAWSRequest request) throws AppException;
 
-    Object delete(TestAWSRequest request) throws AppException;
+    Object deleteBucket(TestAWSRequest request) throws AppException;
 
     Object uploadObject(TestAWSUploadRequest request) throws IOException, AppException;
 

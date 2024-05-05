@@ -65,7 +65,7 @@ public class TestController {
     @DeleteMapping(value = "/aws/s3/bucket")
     public ResponseEntity<Object> deleteBucket(@RequestBody TestAWSRequest request) throws AppException {
         log.debug("TestController.createBucket");
-        return ResponseEntity.ok(testService.delete(request));
+        return ResponseEntity.ok(testService.deleteBucket(request));
     }
 
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))

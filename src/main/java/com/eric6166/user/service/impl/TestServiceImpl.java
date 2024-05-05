@@ -58,7 +58,7 @@ public class TestServiceImpl implements TestService {
     }
 
     @Override
-    public Object delete(TestAWSRequest request) throws AppException {
+    public Object deleteBucket(TestAWSRequest request) throws AppException {
         s3Service.deleteBucket(request.getBucket());
         return "OK";
     }
