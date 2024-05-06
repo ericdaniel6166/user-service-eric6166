@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.sqs.model.DeleteQueueResponse;
 import software.amazon.awssdk.services.sqs.model.QueueAttributeName;
 
 import java.io.IOException;
@@ -59,6 +60,7 @@ public class TestServiceImpl implements TestService {
     public Object createBucket(TestAWSRequest request) throws AppException {
         var o = s3Service.createBucket(request.getBucket());
         Map<String, Object> response = new HashMap<>();
+        response.put("location", o.location());
         return response;
     }
 
@@ -73,6 +75,7 @@ public class TestServiceImpl implements TestService {
     public Object uploadObject(TestAWSUploadRequest request) throws IOException, AppException {
         var o = s3Service.uploadObject(request.getBucket(), request.getKey(), request.getFile());
         Map<String, Object> response = new HashMap<>();
+        response.put("eTag", o.eTag());
         return response;
     }
 
@@ -80,6 +83,7 @@ public class TestServiceImpl implements TestService {
     public Object deleteObject(TestAWSUploadRequest request) throws AppException {
         var o = s3Service.deleteObject(request.getBucket(), request.getKey());
         Map<String, Object> response = new HashMap<>();
+        response.put("deleteMarker", o.deleteMarker());
         return response;
     }
 
@@ -87,19 +91,46 @@ public class TestServiceImpl implements TestService {
     public Object listObject(String bucket) throws AppException {
         var o = s3Service.listObject(bucket);
         Map<String, Object> response = new HashMap<>();
-        return response;
+        return o.contents().stream().map(i -> {
+            Map<String, Object> m = new HashMap<>();
+            m.put("key", i.key());
+            m.put("eTag", i.eTag());
+//            m.put("lastModified", LocalDateTime.ofInstant(i.lastModified(), BaseConst.DEFAULT_ZONE_ID));
+//            m.put("owner.id", i.owner().id());
+//            m.put("owner.displayName", i.owner().displayName());
+//            m.put("restoreStatus", i.restoreStatus().toString());
+//            m.put("restoreStatus.isRestoreInProgress", i.restoreStatus().isRestoreInProgress());
+//            m.put("restoreStatus.restoreExpiryDate", LocalDateTime.ofInstant(i.restoreStatus().restoreExpiryDate(), BaseConst.DEFAULT_ZONE_ID));
+            return m;
+        }).toList();
+//        return response;
     }
 
     @Override
     public Object getObject(String bucket, String key) throws IOException, AppException {
         var o = s3Service.getObject(bucket, key);
         Map<String, Object> response = new HashMap<>();
+        o.readAllBytes();
+        response.put("acceptRanges", o.response().acceptRanges());
+        response.put("contentLength", o.response().contentLength());
+        response.put("eTag", o.response().eTag());
+//        response.put("expires", LocalDateTime.ofInstant(o.response().expires(), BaseConst.DEFAULT_ZONE_ID));
+        response.put("hasMetadata", o.response().hasMetadata());
+//        response.put("lastModified", LocalDateTime.ofInstant(o.response().lastModified(), BaseConst.DEFAULT_ZONE_ID));
+        response.put("missingMeta", o.response().missingMeta());
+        response.put("metadata", o.response().metadata());
+        response.put("restore", o.response().restore());
+//        response.put("serverSideEncryption", o.response().serverSideEncryption().toString());
+//        response.put("serverSideEncryption.name", o.response().serverSideEncryption().name());
+//        response.put("storageClass", o.response().storageClass().toString());
+//        response.put("storageClass.name", o.response().storageClass().name());
+        response.put("tagCount", o.response().tagCount());
         return response;
 
     }
 
     @Override
-    public Object createQueue(TestSqsRequest request) {
+    public Object createQueue(TestSqsRequest request) throws AppException {
         Map<QueueAttributeName, String> queueAttributes = new HashMap<>();
         if (request.getFifoQueue() != null && request.getFifoQueue()) {
             queueAttributes.put(QueueAttributeName.FIFO_QUEUE, Boolean.TRUE.toString());
@@ -107,6 +138,7 @@ public class TestServiceImpl implements TestService {
         }
         var o = sqsService.createQueue(request.getQueueName(), queueAttributes);
         Map<String, Object> response = new HashMap<>();
+        response.put("queueUrl", o.queueUrl());
         return response;
     }
 
@@ -114,16 +146,18 @@ public class TestServiceImpl implements TestService {
     public Object getQueueUrl(String queueName) throws AppException {
         var o = sqsService.getQueueUrl(queueName);
         Map<String, Object> response = new HashMap<>();
+        response.put("queueUrl", o.queueUrl());
         return response;
     }
 
     @Override
     public Object deleteQueue(TestSqsRequest request) throws AppException {
+        DeleteQueueResponse o;
         if (StringUtils.isNotBlank(request.getQueueUrl())) {
-            var o = sqsService.deleteQueueByQueueUrl(request.getQueueUrl());
+            o = sqsService.deleteQueueByQueueUrl(request.getQueueUrl());
 
         } else if (StringUtils.isNotBlank(request.getQueueName())) {
-            var o = sqsService.deleteQueueByQueueName(request.getQueueName());
+            o = sqsService.deleteQueueByQueueName(request.getQueueName());
         }
         Map<String, Object> response = new HashMap<>();
         return response;
@@ -131,8 +165,10 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public Object sendMessage(TestSqsRequest request) throws AppException {
-        var o = sqsService.sendMessageByQueueName(request.getQueueName(), request.getMessage(), 5);
+        var o = sqsService.sendMessageByQueueName(request.getQueueName(), request.getMessage(), request.getDelaySeconds(), request.getMessageGroupId());
         Map<String, Object> response = new HashMap<>();
+        response.put("messageId", o.messageId());
+        response.put("sequenceNumber", o.sequenceNumber());
         return response;
     }
 
@@ -140,6 +176,9 @@ public class TestServiceImpl implements TestService {
     public Object sendBatchMessage(TestSqsBatchRequest request) throws AppException {
         var o = sqsService.sendBatchMessageByQueueName(request.getQueueName(), request);
         Map<String, Object> response = new HashMap<>();
+        response.put("hasSuccessful", o.hasSuccessful());
+        response.put("hasFailed", o.hasFailed());
+        response.put("failed.size", o.failed().size());
         return response;
     }
 

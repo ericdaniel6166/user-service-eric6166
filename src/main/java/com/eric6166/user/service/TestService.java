@@ -32,7 +32,7 @@ public interface TestService {
 
     Object getObject(String bucket, String key) throws IOException, AppException;
 
-    Object createQueue(TestSqsRequest request);
+    Object createQueue(TestSqsRequest request) throws AppException;
 
     Object getQueueUrl(String queueName) throws AppException;
 

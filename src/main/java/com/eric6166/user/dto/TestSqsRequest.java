@@ -12,6 +12,8 @@ public class TestSqsRequest {
     String queueUrl;
     Boolean fifoQueue;
     String message;
+    Integer delaySeconds;
+    String messageGroupId;
 
 
 }
