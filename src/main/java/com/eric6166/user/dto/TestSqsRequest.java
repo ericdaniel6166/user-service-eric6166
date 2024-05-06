@@ -11,6 +11,7 @@ public class TestSqsRequest {
     String queueName;
     String queueUrl;
     Boolean fifoQueue;
+    String message;
 
 
 }

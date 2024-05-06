@@ -2,8 +2,8 @@ package com.eric6166.user.service.impl;
 
 import brave.Span;
 import brave.Tracer;
-import com.eric6166.aws.service.S3Service;
-import com.eric6166.aws.service.SqsService;
+import com.eric6166.aws.s3.S3Service;
+import com.eric6166.aws.sqs.SqsService;
 import com.eric6166.base.exception.AppException;
 import com.eric6166.base.exception.AppExceptionUtils;
 import com.eric6166.base.utils.TestConst;
@@ -13,6 +13,7 @@ import com.eric6166.user.config.feign.InventoryClient;
 import com.eric6166.user.config.kafka.KafkaProducerProps;
 import com.eric6166.user.dto.TestAWSRequest;
 import com.eric6166.user.dto.TestAWSUploadRequest;
+import com.eric6166.user.dto.TestSqsBatchRequest;
 import com.eric6166.user.dto.TestSqsRequest;
 import com.eric6166.user.dto.TestUploadRequest;
 import com.eric6166.user.service.TestService;
@@ -83,14 +84,14 @@ public class TestServiceImpl implements TestService {
     }
 
     @Override
-    public Object listObject(String bucket) {
+    public Object listObject(String bucket) throws AppException {
         var o = s3Service.listObject(bucket);
         Map<String, Object> response = new HashMap<>();
         return response;
     }
 
     @Override
-    public Object getObject(String bucket, String key) throws IOException {
+    public Object getObject(String bucket, String key) throws IOException, AppException {
         var o = s3Service.getObject(bucket, key);
         Map<String, Object> response = new HashMap<>();
         return response;
@@ -110,15 +111,41 @@ public class TestServiceImpl implements TestService {
     }
 
     @Override
-    public Object getQueueUrl(String queueName) {
+    public Object getQueueUrl(String queueName) throws AppException {
         var o = sqsService.getQueueUrl(queueName);
         Map<String, Object> response = new HashMap<>();
         return response;
     }
 
     @Override
-    public Object deleteQueue(TestSqsRequest request) {
-        var o = sqsService.deleteQueue(request.getQueueUrl());
+    public Object deleteQueue(TestSqsRequest request) throws AppException {
+        if (StringUtils.isNotBlank(request.getQueueUrl())) {
+            var o = sqsService.deleteQueueByQueueUrl(request.getQueueUrl());
+
+        } else if (StringUtils.isNotBlank(request.getQueueName())) {
+            var o = sqsService.deleteQueueByQueueName(request.getQueueName());
+        }
+        Map<String, Object> response = new HashMap<>();
+        return response;
+    }
+
+    @Override
+    public Object sendMessage(TestSqsRequest request) throws AppException {
+        var o = sqsService.sendMessageByQueueName(request.getQueueName(), request.getMessage(), 5);
+        Map<String, Object> response = new HashMap<>();
+        return response;
+    }
+
+    @Override
+    public Object sendBatchMessage(TestSqsBatchRequest request) throws AppException {
+        var o = sqsService.sendBatchMessageByQueueName(request.getQueueName(), request);
+        Map<String, Object> response = new HashMap<>();
+        return response;
+    }
+
+    @Override
+    public Object receiveMessage(String queueName, Integer maxNumberOfMessages) throws AppException {
+        var o = sqsService.receiveMessageByQueueName(queueName, maxNumberOfMessages);
         Map<String, Object> response = new HashMap<>();
         return response;
     }
@@ -190,9 +217,8 @@ public class TestServiceImpl implements TestService {
             return List.of(defaultTopicEvent, testTopicAppEvent);
         } catch (RuntimeException e) {
             log.debug("e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage());
-            span.tag("exception.class", e.getClass().getName());
             span.error(e);
-            throw new AppException(e);
+            throw e;
         } finally {
             span.finish();
         }
@@ -227,17 +253,10 @@ public class TestServiceImpl implements TestService {
             span.annotate(String.format("%sClient.%s End", service, method));
             span.tag(String.format("%sClient.%s response", service, method), response.toString());
             return response;
-        } catch (AppException e) {
-            log.debug("e: {} , rootCause: {}", e.getClass().getName(), AppExceptionUtils.getAppExceptionRootCause(e)); // comment // for local testing
-            span.tag("exception.class", e.getClass().getName());
-            span.tag("exception.rootCause", AppExceptionUtils.getAppExceptionRootCause(e).toString());
-            span.error(e);
-            throw e;
         } catch (RuntimeException e) {
             log.debug("e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage());
-            span.tag("exception.class", e.getClass().getName());
             span.error(e);
-            throw new AppException(e);
+            throw e;
         } finally {
             span.finish();
         }

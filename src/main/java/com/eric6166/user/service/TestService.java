@@ -3,6 +3,7 @@ package com.eric6166.user.service;
 import com.eric6166.base.exception.AppException;
 import com.eric6166.user.dto.TestAWSRequest;
 import com.eric6166.user.dto.TestAWSUploadRequest;
+import com.eric6166.user.dto.TestSqsBatchRequest;
 import com.eric6166.user.dto.TestSqsRequest;
 import com.eric6166.user.dto.TestUploadRequest;
 
@@ -27,13 +28,19 @@ public interface TestService {
 
     Object deleteObject(TestAWSUploadRequest request) throws AppException;
 
-    Object listObject(String bucket);
+    Object listObject(String bucket) throws AppException;
 
-    Object getObject(String bucket, String key) throws IOException;
+    Object getObject(String bucket, String key) throws IOException, AppException;
 
     Object createQueue(TestSqsRequest request);
 
-    Object getQueueUrl(String queueName);
+    Object getQueueUrl(String queueName) throws AppException;
 
-    Object deleteQueue(TestSqsRequest request);
+    Object deleteQueue(TestSqsRequest request) throws AppException;
+
+    Object sendMessage(TestSqsRequest request) throws AppException;
+
+    Object sendBatchMessage(TestSqsBatchRequest request) throws AppException;
+
+    Object receiveMessage(String queueName, Integer maxNumberOfMessages) throws AppException;
 }

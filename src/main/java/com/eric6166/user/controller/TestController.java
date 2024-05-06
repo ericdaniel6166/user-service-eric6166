@@ -9,6 +9,7 @@ import com.eric6166.base.utils.BaseUtils;
 import com.eric6166.base.utils.TestConst;
 import com.eric6166.user.dto.TestAWSRequest;
 import com.eric6166.user.dto.TestAWSUploadRequest;
+import com.eric6166.user.dto.TestSqsBatchRequest;
 import com.eric6166.user.dto.TestSqsRequest;
 import com.eric6166.user.dto.TestUploadRequest;
 import com.eric6166.user.service.TestService;
@@ -58,9 +59,32 @@ public class TestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping(value = "/aws/sqs/message")
+    public ResponseEntity<Object> receiveMessage(@RequestParam String queueName, @RequestParam(required = false) Integer maxNumberOfMessages) throws AppException {
+        log.debug("TestController.createQueue");
+        return ResponseEntity.ok(new AppResponse<>(testService.receiveMessage(queueName, maxNumberOfMessages)));
+    }
+
+    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping(value = "/aws/sqs/message")
+    public ResponseEntity<Object> sendMessage(@RequestBody TestSqsRequest request) throws AppException {
+        log.debug("TestController.sendMessage");
+        return ResponseEntity.ok(new AppResponse<>(testService.sendMessage(request)));
+    }
+
+    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping(value = "/aws/sqs/batch-message")
+    public ResponseEntity<Object> sendBatchMessage(@RequestBody TestSqsBatchRequest request) throws AppException {
+        log.debug("TestController.sendMessage");
+        return ResponseEntity.ok(new AppResponse<>(testService.sendBatchMessage(request)));
+    }
+
+
+
+    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     @DeleteMapping(value = "/aws/sqs/queue")
     public ResponseEntity<Object> deleteQueue(@RequestBody TestSqsRequest request) throws AppException {
-        log.debug("TestController.createQueue");
+        log.debug("TestController.deleteQueue");
         return ResponseEntity.ok(new AppResponse<>(testService.deleteQueue(request)));
     }
 
@@ -104,7 +128,7 @@ public class TestController {
 
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping(value = "/aws/s3/object")
-    public ResponseEntity<Object> getObject(@RequestParam String bucket, @RequestParam(required = false) String key) throws IOException {
+    public ResponseEntity<Object> getObject(@RequestParam String bucket, @RequestParam(required = false) String key) throws IOException, AppException {
         log.debug("TestController.object");
         if (StringUtils.isBlank(key)) {
             return ResponseEntity.ok(new AppResponse<>(testService.listObject(bucket)));
@@ -172,8 +196,7 @@ public class TestController {
             return baseUtils.buildResponseExceptionEntity(errorResponse);
         } catch (RuntimeException e) {
             span.error(e);
-            var errorResponse = appExceptionUtils.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, exception);
-            return baseUtils.buildResponseExceptionEntity(errorResponse);
+            throw e;
         } finally {
             span.finish();
         }

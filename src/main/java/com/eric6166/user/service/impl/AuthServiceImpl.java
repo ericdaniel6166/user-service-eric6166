@@ -97,11 +97,7 @@ public class AuthServiceImpl implements AuthService {
         log.debug("AuthServiceImpl.register"); // comment // for local testing
         Span span = tracer.nextSpan().name("register").start();
         try (var ws = tracer.withSpanInScope(span)) {
-            span.tag("request", request.toString());
-            span.annotate("userValidation.validateAccountExisted Start");
             userValidation.validateAccountExisted(request);
-            span.annotate("userValidation.validateAccountExisted End");
-
             var user = new UserRepresentation();
             user.setUsername(request.getUsername());
             user.setEmail(request.getEmail());
@@ -120,13 +116,9 @@ public class AuthServiceImpl implements AuthService {
                 user.setGroups(Collections.singletonList(customer.getPath()));
             }
             user.setEnabled(true); //improvement later
-            span.tag("keycloakService.createUser user username", user.getUsername());
-            span.tag("keycloakService.createUser user email", user.getEmail());
             span.annotate("keycloakService.createUser Start");
             var response = keycloakAminClientService.createUser(user);
             span.annotate("keycloakService.createUser End");
-            span.tag("keycloakService.createUser response status code", String.valueOf(response.getStatusInfo().getStatusCode()));
-            span.tag("keycloakService.createUser response reason phrase", response.getStatusInfo().getReasonPhrase());
 
             try {
                 var createdId = CreatedResponseUtil.getCreatedId(response);
@@ -139,17 +131,10 @@ public class AuthServiceImpl implements AuthService {
             var msg = messageSource.getMessage(BaseMessageConst.MSG_INF_RESOURCE_CREATED, new String[]{res}, LocaleContextHolder.getLocale());
             span.tag("msg", msg);
             return new MessageResponse(StringUtils.capitalize(msg));
-        } catch (AppException e) {
-            log.debug("e: {} , rootCause: {}", e.getClass().getName(), AppExceptionUtils.getAppExceptionRootCause(e).toString()); // comment // for local testing
-            span.tag("exception.class", e.getClass().getName());
-            span.tag("exception.rootCause", AppExceptionUtils.getAppExceptionRootCause(e).toString());
-            span.error(e);
-            throw e;
         } catch (RuntimeException e) {
             log.debug("e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage()); // comment // for local testing
-            span.tag("exception.class", e.getClass().getName());
             span.error(e);
-            throw new AppException(e);
+            throw e;
         } finally {
             span.finish();
         }
