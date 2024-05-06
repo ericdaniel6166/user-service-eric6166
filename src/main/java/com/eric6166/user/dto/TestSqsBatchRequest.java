@@ -13,11 +13,11 @@ import java.util.stream.Collectors;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TestSqsBatchRequest implements SqsMessages {
+
     String queueName;
-
     Collection<Message> messages;
-
     Integer delaySeconds;
+    String messageGroupId;
 
     @Override
     public Collection<SqsMessage> getSqsMessages() {
@@ -37,6 +37,11 @@ public class TestSqsBatchRequest implements SqsMessages {
         @Override
         public String getId() {
             return UUID.randomUUID().toString();
+        }
+
+        @Override
+        public String getMessageGroupId() {
+            return null;
         }
     }
 }

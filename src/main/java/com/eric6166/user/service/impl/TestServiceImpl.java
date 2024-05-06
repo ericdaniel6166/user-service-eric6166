@@ -5,7 +5,6 @@ import brave.Tracer;
 import com.eric6166.aws.s3.S3Service;
 import com.eric6166.aws.sqs.SqsService;
 import com.eric6166.base.exception.AppException;
-import com.eric6166.base.exception.AppExceptionUtils;
 import com.eric6166.base.utils.TestConst;
 import com.eric6166.common.config.kafka.AppEvent;
 import com.eric6166.security.utils.AppSecurityUtils;
@@ -28,6 +27,7 @@ import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.sqs.model.QueueAttributeName;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -147,7 +147,13 @@ public class TestServiceImpl implements TestService {
     public Object receiveMessage(String queueName, Integer maxNumberOfMessages) throws AppException {
         var o = sqsService.receiveMessageByQueueName(queueName, maxNumberOfMessages);
         Map<String, Object> response = new HashMap<>();
-        return response;
+        List<Map<String, String>> res = new ArrayList<>();
+        return o.messages().stream().map(i -> {
+            Map<String, String> m = new HashMap<>();
+            m.put("body", i.body());
+            m.put("messageId", i.messageId());
+            return m;
+        }).toList();
     }
 
     //    create queue
