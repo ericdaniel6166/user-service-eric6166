@@ -1,6 +1,5 @@
 package com.eric6166.user.controller;
 
-import brave.Span;
 import brave.Tracer;
 import com.eric6166.base.dto.AppResponse;
 import com.eric6166.base.exception.AppException;
@@ -9,6 +8,8 @@ import com.eric6166.base.utils.BaseUtils;
 import com.eric6166.base.utils.TestConst;
 import com.eric6166.user.dto.TestAWSRequest;
 import com.eric6166.user.dto.TestAWSUploadRequest;
+import com.eric6166.user.dto.TestS3ObjectRequest;
+import com.eric6166.user.dto.TestSqsBatchDeleteRequest;
 import com.eric6166.user.dto.TestSqsBatchRequest;
 import com.eric6166.user.dto.TestSqsRequest;
 import com.eric6166.user.dto.TestUploadRequest;
@@ -61,8 +62,15 @@ public class TestController {
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping(value = "/aws/sqs/message")
     public ResponseEntity<Object> receiveMessage(@RequestParam String queueName, @RequestParam(required = false) Integer maxNumberOfMessages) throws AppException {
-        log.debug("TestController.createQueue");
+        log.debug("TestController.receiveMessage");
         return ResponseEntity.ok(new AppResponse<>(testService.receiveMessage(queueName, maxNumberOfMessages)));
+    }
+
+    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping(value = "/aws/sqs/message/process")
+    public ResponseEntity<Object> processMessage(@RequestBody TestSqsBatchDeleteRequest request) throws AppException {
+        log.debug("TestController.processMessage");
+        return ResponseEntity.ok(new AppResponse<>(testService.processMessage(request)));
     }
 
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
@@ -75,11 +83,9 @@ public class TestController {
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping(value = "/aws/sqs/batch-message")
     public ResponseEntity<Object> sendBatchMessage(@RequestBody TestSqsBatchRequest request) throws AppException {
-        log.debug("TestController.sendMessage");
+        log.debug("TestController.sendBatchMessage");
         return ResponseEntity.ok(new AppResponse<>(testService.sendBatchMessage(request)));
     }
-
-
 
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     @DeleteMapping(value = "/aws/sqs/queue")
@@ -88,14 +94,12 @@ public class TestController {
         return ResponseEntity.ok(new AppResponse<>(testService.deleteQueue(request)));
     }
 
-
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping(value = "/aws/sqs/queue")
     public ResponseEntity<Object> getQueueUrl(@RequestParam String queueName) throws AppException {
         log.debug("TestController.getQueueUrl");
         return ResponseEntity.ok(new AppResponse<>(testService.getQueueUrl(queueName)));
     }
-
 
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping(value = "/aws/s3/bucket")
@@ -125,6 +129,20 @@ public class TestController {
         return ResponseEntity.ok(new AppResponse<>(testService.uploadObject(request)));
     }
 
+    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping(value = "/aws/s3/object/presign-url")
+    public ResponseEntity<Object> presignGetObject(@RequestBody TestS3ObjectRequest request) throws AppException {
+        log.debug("TestController.uploadObject");
+        return ResponseEntity.ok(new AppResponse<>(testService.presignGetObject(request)));
+    }
+
+    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping(value = "/aws/s3/object/copy")
+    public ResponseEntity<Object> copyObject(@RequestBody TestS3ObjectRequest request) throws AppException {
+        log.debug("TestController.uploadObject");
+        return ResponseEntity.ok(new AppResponse<>(testService.copyObject(request)));
+    }
+
 
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping(value = "/aws/s3/object")
@@ -136,7 +154,6 @@ public class TestController {
 
         return ResponseEntity.ok(new AppResponse<>(testService.getObject(bucket, key)));
     }
-
 
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     @DeleteMapping(value = "/aws/s3/object")
@@ -188,7 +205,7 @@ public class TestController {
 
     public ResponseEntity<Object> testResilience4jFallbackMethod(String service, RuntimeException exception) {
         log.debug("TestController.testResilience4jFallbackMethod");
-        Span span = tracer.nextSpan().name("defaultFallbackMethod").start();
+        var span = tracer.nextSpan().name("defaultFallbackMethod").start();
         try (var ws = tracer.withSpanInScope(span)) {
             span.error(exception);
             span.tag("service", service);

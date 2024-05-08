@@ -1,7 +1,7 @@
 package com.eric6166.user.dto;
 
-import com.eric6166.aws.sqs.SqsMessage;
-import com.eric6166.aws.sqs.SqsMessages;
+import com.eric6166.aws.sqs.SqsSendMessage;
+import com.eric6166.aws.sqs.SqsSendMessages;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TestSqsBatchRequest implements SqsMessages {
+public class TestSqsBatchRequest implements SqsSendMessages {
 
     String queueName;
     Collection<Message> messages;
@@ -19,13 +19,13 @@ public class TestSqsBatchRequest implements SqsMessages {
     String messageGroupId;
 
     @Override
-    public Collection<SqsMessage> getSqsMessages() {
-        return messages.stream().map(o -> (SqsMessage) o).collect(Collectors.toList());
+    public Collection<SqsSendMessage> getSqsMessages() {
+        return messages.stream().map(o -> (SqsSendMessage) o).collect(Collectors.toList());
     }
 
     @Data
     @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class Message implements SqsMessage {
+    public static class Message implements SqsSendMessage {
         String messageBody;
         String id;
 

@@ -1,10 +1,8 @@
 package com.eric6166.user.service.impl;
 
-import brave.Span;
 import brave.Tracer;
 import com.eric6166.base.dto.MessageResponse;
 import com.eric6166.base.exception.AppException;
-import com.eric6166.base.exception.AppExceptionUtils;
 import com.eric6166.base.utils.BaseMessageConst;
 import com.eric6166.keycloak.service.KeycloakAminClientService;
 import com.eric6166.keycloak.validation.UserValidation;
@@ -95,7 +93,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public MessageResponse register(RegisterAccountRequest request) throws AppException {
         log.debug("AuthServiceImpl.register"); // comment // for local testing
-        Span span = tracer.nextSpan().name("register").start();
+        var span = tracer.nextSpan().name("register").start();
         try (var ws = tracer.withSpanInScope(span)) {
             userValidation.validateAccountExisted(request);
             var user = new UserRepresentation();

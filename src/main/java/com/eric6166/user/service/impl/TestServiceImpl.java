@@ -1,10 +1,10 @@
 package com.eric6166.user.service.impl;
 
-import brave.Span;
 import brave.Tracer;
 import com.eric6166.aws.s3.S3Service;
 import com.eric6166.aws.sqs.SqsService;
 import com.eric6166.base.exception.AppException;
+import com.eric6166.base.utils.BaseConst;
 import com.eric6166.base.utils.TestConst;
 import com.eric6166.common.config.kafka.AppEvent;
 import com.eric6166.security.utils.AppSecurityUtils;
@@ -12,6 +12,8 @@ import com.eric6166.user.config.feign.InventoryClient;
 import com.eric6166.user.config.kafka.KafkaProducerProps;
 import com.eric6166.user.dto.TestAWSRequest;
 import com.eric6166.user.dto.TestAWSUploadRequest;
+import com.eric6166.user.dto.TestS3ObjectRequest;
+import com.eric6166.user.dto.TestSqsBatchDeleteRequest;
 import com.eric6166.user.dto.TestSqsBatchRequest;
 import com.eric6166.user.dto.TestSqsRequest;
 import com.eric6166.user.dto.TestUploadRequest;
@@ -24,9 +26,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.sqs.model.DeleteMessageBatchResponse;
 import software.amazon.awssdk.services.sqs.model.DeleteQueueResponse;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -108,8 +113,12 @@ public class TestServiceImpl implements TestService {
     @Override
     public Object getObject(String bucket, String key) throws IOException, AppException {
         var o = s3Service.getObject(bucket, key);
+        var o1 = s3Service.getObjectAsBytes(bucket, key); //
+//        String text = IOUtils.toString(o1.asInputStream(), StandardCharsets.UTF_8.name()); // if file is text, etc
+//        File targetFile = new File("src/main/resources/test.jpg");
+//        FileUtils.copyInputStreamToFile(o1.asInputStream(), targetFile);
+
         Map<String, Object> response = new HashMap<>();
-        o.readAllBytes();
         response.put("acceptRanges", o.response().acceptRanges());
         response.put("contentLength", o.response().contentLength());
         response.put("eTag", o.response().eTag());
@@ -124,6 +133,7 @@ public class TestServiceImpl implements TestService {
 //        response.put("storageClass", o.response().storageClass().toString());
 //        response.put("storageClass.name", o.response().storageClass().name());
         response.put("tagCount", o.response().tagCount());
+
         return response;
 
     }
@@ -181,7 +191,7 @@ public class TestServiceImpl implements TestService {
     }
 
     @Override
-    public Object receiveMessage(String queueName, Integer maxNumberOfMessages) throws AppException {
+    public List<Map<String, String>> receiveMessage(String queueName, Integer maxNumberOfMessages) throws AppException {
         var o = sqsService.receiveMessageByQueueName(queueName, maxNumberOfMessages);
         Map<String, Object> response = new HashMap<>();
         List<Map<String, String>> res = new ArrayList<>();
@@ -189,8 +199,52 @@ public class TestServiceImpl implements TestService {
             Map<String, String> m = new HashMap<>();
             m.put("body", i.body());
             m.put("messageId", i.messageId());
+            m.put("receiptHandle", i.receiptHandle());
             return m;
         }).toList();
+    }
+
+    @Override
+    public Object processMessage(TestSqsBatchDeleteRequest request) throws AppException {
+        List<Map<String, String>> receiveMessage = receiveMessage(request.getQueueName(), request.getMaxNumberOfMessages());
+        if (receiveMessage.size() > 0) {
+            request.setMessages(receiveMessage.stream().map(i -> {
+                var m = new TestSqsBatchDeleteRequest.Message();
+                m.setReceiptHandle(i.get("receiptHandle"));
+                m.setId(i.get("messageId"));
+                return m;
+            }).toList());
+            Map<String, Object> response = new HashMap<>();
+            DeleteMessageBatchResponse o = sqsService.deleteMessageBatchByQueueName(request.getQueueName(), request);
+            response.put("hasSuccessful", o.hasSuccessful());
+            response.put("hasFailed", o.hasFailed());
+            response.put("failed.size", o.failed().size());
+            response.put("messages", receiveMessage);
+            return response;
+        }
+        return "No Messages Available";
+
+    }
+
+    @Override
+    public Object copyObject(TestS3ObjectRequest request) throws AppException {
+        var o = s3Service.copyObject(request.getSourceBucket(), request.getSourceKey(), request.getDestinationBucket(), request.getDestinationKey());
+        Map<String, Object> r = new HashMap<>();
+        r.put("copyObjectResult.eTag", o.copyObjectResult().eTag());
+        r.put("copyObjectResult.lastModified", LocalDateTime.ofInstant(o.copyObjectResult().lastModified(), BaseConst.DEFAULT_ZONE_ID).toString());
+        r.put("serverSideEncryption.name", o.serverSideEncryption().name());
+
+        return r;
+    }
+
+    @Override
+    public Object presignGetObject(TestS3ObjectRequest request) throws AppException {
+        var signatureDuration = request.getSignatureDuration() == null ? null : Duration.ofMinutes(request.getSignatureDuration());
+        var o = s3Service.presignGetObject(request.getBucket(), request.getKey(), signatureDuration);
+        Map<String, Object> r = new HashMap<>();
+        r.put("url", o.url().toString());
+        r.put("isBrowserExecutable", o.isBrowserExecutable());
+        return r;
     }
 
     //    create queue
@@ -237,7 +291,7 @@ public class TestServiceImpl implements TestService {
     @Override
     public List<Object> testKafka(String service) throws AppException {
         log.debug("TestServiceImpl.testKafka");
-        Span span = tracer.nextSpan().name("testKafka").start();
+        var span = tracer.nextSpan().name("testKafka").start();
         try (var ws = tracer.withSpanInScope(span)) {
             var messageToDefaultTopic = String.format("topic: %s, message from: user service, to: %s service", kafkaProducerProps.getDefaultTopicName(), service);
             var defaultTopicEvent = AppEvent.builder()
@@ -270,7 +324,7 @@ public class TestServiceImpl implements TestService {
     @Override
     public Object testFeign(String service, String method, String... params) throws AppException {
         log.debug("TestServiceImpl.testFeign");
-        Span span = tracer.nextSpan().name("testFeign").start();
+        var span = tracer.nextSpan().name("testFeign").start();
         try (var ws = tracer.withSpanInScope(span)) {
             Object response;
             span.annotate(String.format("%sClient.%s Start", service, method));
