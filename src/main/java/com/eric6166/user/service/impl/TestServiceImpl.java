@@ -25,7 +25,6 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.sqs.model.DeleteQueueResponse;
-import software.amazon.awssdk.services.sqs.model.QueueAttributeName;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -131,12 +130,7 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public Object createQueue(TestSqsRequest request) throws AppException {
-        Map<QueueAttributeName, String> queueAttributes = new HashMap<>();
-        if (request.getFifoQueue() != null && request.getFifoQueue()) {
-            queueAttributes.put(QueueAttributeName.FIFO_QUEUE, Boolean.TRUE.toString());
-            queueAttributes.put(QueueAttributeName.CONTENT_BASED_DEDUPLICATION, Boolean.TRUE.toString());
-        }
-        var o = sqsService.createQueue(request.getQueueName(), queueAttributes);
+        var o = sqsService.createQueue(request.getQueueName());
         Map<String, Object> response = new HashMap<>();
         response.put("queueUrl", o.queueUrl());
         return response;
@@ -174,6 +168,10 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public Object sendBatchMessage(TestSqsBatchRequest request) throws AppException {
+        request.setMessages(request.getMessages().stream().map(i -> {
+            i.setId(UUID.randomUUID().toString());
+            return i;
+        }).toList());
         var o = sqsService.sendBatchMessageByQueueName(request.getQueueName(), request);
         Map<String, Object> response = new HashMap<>();
         response.put("hasSuccessful", o.hasSuccessful());

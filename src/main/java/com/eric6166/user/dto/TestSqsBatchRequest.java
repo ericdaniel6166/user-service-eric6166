@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
 import java.util.Collection;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Data
@@ -28,20 +27,7 @@ public class TestSqsBatchRequest implements SqsMessages {
     @FieldDefaults(level = AccessLevel.PRIVATE)
     public static class Message implements SqsMessage {
         String messageBody;
+        String id;
 
-        @Override
-        public Integer getDelaySeconds() {
-            return null;
-        }
-
-        @Override
-        public String getId() {
-            return UUID.randomUUID().toString();
-        }
-
-        @Override
-        public String getMessageGroupId() {
-            return null;
-        }
     }
 }
