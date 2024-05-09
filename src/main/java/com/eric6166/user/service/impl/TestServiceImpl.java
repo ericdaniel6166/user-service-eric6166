@@ -193,8 +193,6 @@ public class TestServiceImpl implements TestService {
     @Override
     public List<Map<String, String>> receiveMessage(String queueName, Integer maxNumberOfMessages) throws AppException {
         var o = sqsService.receiveMessageByQueueName(queueName, maxNumberOfMessages);
-        Map<String, Object> response = new HashMap<>();
-        List<Map<String, String>> res = new ArrayList<>();
         return o.messages().stream().map(i -> {
             Map<String, String> m = new HashMap<>();
             m.put("body", i.body());
