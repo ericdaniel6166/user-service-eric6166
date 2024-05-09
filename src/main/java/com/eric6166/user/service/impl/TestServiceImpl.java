@@ -117,7 +117,6 @@ public class TestServiceImpl implements TestService {
 //        String text = IOUtils.toString(o1.asInputStream(), StandardCharsets.UTF_8.name()); // if file is text, etc
 //        File targetFile = new File("src/main/resources/test.jpg");
 //        FileUtils.copyInputStreamToFile(o1.asInputStream(), targetFile);
-
         Map<String, Object> response = new HashMap<>();
         response.put("acceptRanges", o.response().acceptRanges());
         response.put("contentLength", o.response().contentLength());
