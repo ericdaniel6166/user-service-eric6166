@@ -18,8 +18,8 @@ public class KafkaProducerProps {
     @Value("${spring.kafka.producers.test-topic.topic-name}")
     String testTopicName;
 
-    @Value("${spring.kafka.template.default-topic}")
-    String defaultTopicName;
+    @Value("${spring.kafka.template.producer.topic-name}")
+    String templateTopicName;
 
 
 }

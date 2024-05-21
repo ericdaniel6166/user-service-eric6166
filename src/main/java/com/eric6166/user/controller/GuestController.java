@@ -31,7 +31,7 @@ public class GuestController {
     @GetMapping("/test/feign")
     public ResponseEntity<Object> testFeign(@RequestParam(defaultValue = TestConst.INVENTORY, required = false) String service,
                                             @RequestParam(defaultValue = TestConst.PRODUCT_TEST, required = false) String method) throws AppException {
-        log.debug("TestController.testFeign");
+        log.info("TestController.testFeign");
         return ResponseEntity.ok(testService.testFeign(service, method));
     }
 

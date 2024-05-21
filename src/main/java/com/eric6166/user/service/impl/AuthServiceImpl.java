@@ -4,7 +4,7 @@ import brave.Tracer;
 import com.eric6166.base.dto.MessageResponse;
 import com.eric6166.base.exception.AppException;
 import com.eric6166.base.utils.BaseMessageConst;
-import com.eric6166.keycloak.service.KeycloakAminClientService;
+import com.eric6166.keycloak.config.KeycloakAminClient;
 import com.eric6166.keycloak.validation.UserValidation;
 import com.eric6166.security.utils.AppSecurityUtils;
 import com.eric6166.security.utils.SecurityConst;
@@ -38,7 +38,7 @@ import java.util.Map;
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class AuthServiceImpl implements AuthService {
 
-    KeycloakAminClientService keycloakAminClientService;
+    KeycloakAminClient keycloakAminClient;
     UserValidation userValidation;
     MessageSource messageSource;
     Tracer tracer;
@@ -92,7 +92,7 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     @Override
     public MessageResponse register(RegisterAccountRequest request) throws AppException {
-        log.debug("AuthServiceImpl.register"); // comment // for local testing
+        log.info("AuthServiceImpl.register"); // comment // for local testing
         var span = tracer.nextSpan().name("register").start();
         try (var ws = tracer.withSpanInScope(span)) {
             userValidation.validateAccountExisted(request);
@@ -107,7 +107,7 @@ public class AuthServiceImpl implements AuthService {
 
             user.setCredentials(Collections.singletonList(credential));
             span.annotate("keycloakService.searchGroupByName Start");
-            var customerOpt = keycloakAminClientService.searchGroupByName(SecurityConst.GROUP_CUSTOMER);
+            var customerOpt = keycloakAminClient.searchGroupByName(SecurityConst.GROUP_CUSTOMER);
             span.annotate("keycloakService.searchGroupByName End");
             if (customerOpt.isPresent()) {
                 GroupRepresentation customer = customerOpt.get();
@@ -115,7 +115,7 @@ public class AuthServiceImpl implements AuthService {
             }
             user.setEnabled(true); //improvement later
             span.annotate("keycloakService.createUser Start");
-            var response = keycloakAminClientService.createUser(user);
+            var response = keycloakAminClient.createUser(user);
             span.annotate("keycloakService.createUser End");
 
             try {
@@ -128,9 +128,11 @@ public class AuthServiceImpl implements AuthService {
             var res = messageSource.getMessage(BaseMessageConst.MGS_RES_ACCOUNT, null, LocaleContextHolder.getLocale());
             var msg = messageSource.getMessage(BaseMessageConst.MSG_INF_RESOURCE_CREATED, new String[]{res}, LocaleContextHolder.getLocale());
             span.tag("msg", msg);
-            return new MessageResponse(StringUtils.capitalize(msg));
+            return MessageResponse.builder()
+                    .message(StringUtils.capitalize(msg))
+                    .build();
         } catch (RuntimeException e) {
-            log.debug("e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage()); // comment // for local testing
+            log.info("e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage()); // comment // for local testing
             span.error(e);
             throw e;
         } finally {

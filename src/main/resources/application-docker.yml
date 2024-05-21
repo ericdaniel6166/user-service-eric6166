@@ -5,7 +5,7 @@ app:
   eureka:
     hostname: discovery-service
   keycloak:
-    host: keycloak
+    hostname: keycloak
   zipkin:
     hostname: zipkin
   inventory-service:
@@ -24,6 +24,4 @@ logging:
   level:
     root: INFO
     com.eric6166: INFO
-    org.hibernate.sql: DEBUG
-    org.hibernate.type.descriptor.sql : TRACE
     org.apache.http: INFO

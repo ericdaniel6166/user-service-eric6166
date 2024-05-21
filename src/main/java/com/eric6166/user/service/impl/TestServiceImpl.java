@@ -1,8 +1,8 @@
 package com.eric6166.user.service.impl;
 
 import brave.Tracer;
-import com.eric6166.aws.s3.S3Service;
-import com.eric6166.aws.sqs.SqsService;
+import com.eric6166.aws.s3.AppS3Client;
+import com.eric6166.aws.sqs.AppSqsClient;
 import com.eric6166.base.exception.AppException;
 import com.eric6166.base.utils.BaseConst;
 import com.eric6166.base.utils.TestConst;
@@ -32,7 +32,6 @@ import software.amazon.awssdk.services.sqs.model.DeleteQueueResponse;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,12 +48,12 @@ public class TestServiceImpl implements TestService {
     KafkaTemplate<String, Object> kafkaTemplate;
     KafkaProducerProps kafkaProducerProps;
     Tracer tracer;
-    S3Service s3Service;
-    SqsService sqsService;
+    AppS3Client appS3Client;
+    AppSqsClient appSqsClient;
 
     @Override
     public Object isBucketExistedBucket(String bucket) {
-        boolean isBucketExisted = s3Service.isBucketExisted(bucket);
+        var isBucketExisted = appS3Client.isBucketExisted(bucket);
         Map<String, Object> response = new HashMap<>();
         response.put("isBucketExisted", isBucketExisted);
         return response;
@@ -62,7 +61,7 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public Object createBucket(TestAWSRequest request) throws AppException {
-        var o = s3Service.createBucket(request.getBucket());
+        var o = appS3Client.createBucket(request.getBucket());
         Map<String, Object> response = new HashMap<>();
         response.put("location", o.location());
         return response;
@@ -70,14 +69,14 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public Object deleteBucket(TestAWSRequest request) throws AppException {
-        var o = s3Service.deleteBucket(request.getBucket());
+        var o = appS3Client.deleteBucket(request.getBucket());
         Map<String, Object> response = new HashMap<>();
         return response;
     }
 
     @Override
     public Object uploadObject(TestAWSUploadRequest request) throws IOException, AppException {
-        var o = s3Service.uploadObject(request.getBucket(), request.getKey(), request.getFile());
+        var o = appS3Client.uploadObject(request.getBucket(), request.getKey(), request.getFile());
         Map<String, Object> response = new HashMap<>();
         response.put("eTag", o.eTag());
         return response;
@@ -85,7 +84,7 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public Object deleteObject(TestAWSUploadRequest request) throws AppException {
-        var o = s3Service.deleteObject(request.getBucket(), request.getKey());
+        var o = appS3Client.deleteObject(request.getBucket(), request.getKey());
         Map<String, Object> response = new HashMap<>();
         response.put("deleteMarker", o.deleteMarker());
         return response;
@@ -93,7 +92,7 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public Object listObject(String bucket) throws AppException {
-        var o = s3Service.listObject(bucket);
+        var o = appS3Client.listObject(bucket);
         Map<String, Object> response = new HashMap<>();
         return o.contents().stream().map(i -> {
             Map<String, Object> m = new HashMap<>();
@@ -112,8 +111,8 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public Object getObject(String bucket, String key) throws IOException, AppException {
-        var o = s3Service.getObject(bucket, key);
-        var o1 = s3Service.getObjectAsBytes(bucket, key); //
+        var o = appS3Client.getObject(bucket, key);
+        var o1 = appS3Client.getObjectAsBytes(bucket, key); //
 //        String text = IOUtils.toString(o1.asInputStream(), StandardCharsets.UTF_8.name()); // if file is text, etc
 //        File targetFile = new File("src/main/resources/test.jpg");
 //        FileUtils.copyInputStreamToFile(o1.asInputStream(), targetFile);
@@ -139,7 +138,7 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public Object createQueue(TestSqsRequest request) throws AppException {
-        var o = sqsService.createQueue(request.getQueueName());
+        var o = appSqsClient.createQueue(request.getQueueName());
         Map<String, Object> response = new HashMap<>();
         response.put("queueUrl", o.queueUrl());
         return response;
@@ -147,7 +146,7 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public Object getQueueUrl(String queueName) throws AppException {
-        var o = sqsService.getQueueUrl(queueName);
+        var o = appSqsClient.getQueueUrl(queueName);
         Map<String, Object> response = new HashMap<>();
         response.put("queueUrl", o.queueUrl());
         return response;
@@ -157,10 +156,10 @@ public class TestServiceImpl implements TestService {
     public Object deleteQueue(TestSqsRequest request) throws AppException {
         DeleteQueueResponse o;
         if (StringUtils.isNotBlank(request.getQueueUrl())) {
-            o = sqsService.deleteQueueByQueueUrl(request.getQueueUrl());
+            o = appSqsClient.deleteQueueByQueueUrl(request.getQueueUrl());
 
         } else if (StringUtils.isNotBlank(request.getQueueName())) {
-            o = sqsService.deleteQueueByQueueName(request.getQueueName());
+            o = appSqsClient.deleteQueueByQueueName(request.getQueueName());
         }
         Map<String, Object> response = new HashMap<>();
         return response;
@@ -168,7 +167,7 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public Object sendMessage(TestSqsRequest request) throws AppException {
-        var o = sqsService.sendMessageByQueueName(request.getQueueName(), request.getMessage(), request.getDelaySeconds(), request.getMessageGroupId());
+        var o = appSqsClient.sendMessageByQueueName(request.getQueueName(), request.getMessage(), request.getDelaySeconds(), request.getMessageGroupId());
         Map<String, Object> response = new HashMap<>();
         response.put("messageId", o.messageId());
         response.put("sequenceNumber", o.sequenceNumber());
@@ -181,7 +180,7 @@ public class TestServiceImpl implements TestService {
             i.setId(UUID.randomUUID().toString());
             return i;
         }).toList());
-        var o = sqsService.sendBatchMessageByQueueName(request.getQueueName(), request);
+        var o = appSqsClient.sendBatchMessageByQueueName(request.getQueueName(), request);
         Map<String, Object> response = new HashMap<>();
         response.put("hasSuccessful", o.hasSuccessful());
         response.put("hasFailed", o.hasFailed());
@@ -191,7 +190,7 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public List<Map<String, String>> receiveMessage(String queueName, Integer maxNumberOfMessages) throws AppException {
-        var o = sqsService.receiveMessageByQueueName(queueName, maxNumberOfMessages);
+        var o = appSqsClient.receiveMessageByQueueName(queueName, maxNumberOfMessages);
         return o.messages().stream().map(i -> {
             Map<String, String> m = new HashMap<>();
             m.put("body", i.body());
@@ -212,7 +211,7 @@ public class TestServiceImpl implements TestService {
                 return m;
             }).toList());
             Map<String, Object> response = new HashMap<>();
-            DeleteMessageBatchResponse o = sqsService.deleteMessageBatchByQueueName(request.getQueueName(), request);
+            DeleteMessageBatchResponse o = appSqsClient.deleteMessageBatchByQueueName(request.getQueueName(), request);
             response.put("hasSuccessful", o.hasSuccessful());
             response.put("hasFailed", o.hasFailed());
             response.put("failed.size", o.failed().size());
@@ -225,7 +224,7 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public Object copyObject(TestS3ObjectRequest request) throws AppException {
-        var o = s3Service.copyObject(request.getSourceBucket(), request.getSourceKey(), request.getDestinationBucket(), request.getDestinationKey());
+        var o = appS3Client.copyObject(request.getSourceBucket(), request.getSourceKey(), request.getDestinationBucket(), request.getDestinationKey());
         Map<String, Object> r = new HashMap<>();
         r.put("copyObjectResult.eTag", o.copyObjectResult().eTag());
         r.put("copyObjectResult.lastModified", LocalDateTime.ofInstant(o.copyObjectResult().lastModified(), BaseConst.DEFAULT_ZONE_ID).toString());
@@ -237,7 +236,7 @@ public class TestServiceImpl implements TestService {
     @Override
     public Object presignGetObject(TestS3ObjectRequest request) throws AppException {
         var signatureDuration = request.getSignatureDuration() == null ? null : Duration.ofMinutes(request.getSignatureDuration());
-        var o = s3Service.presignGetObject(request.getBucket(), request.getKey(), signatureDuration);
+        var o = appS3Client.presignGetObject(request.getBucket(), request.getKey(), signatureDuration);
         Map<String, Object> r = new HashMap<>();
         r.put("url", o.url().toString());
         r.put("isBrowserExecutable", o.isBrowserExecutable());
@@ -282,23 +281,23 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public void testUpload(TestUploadRequest request) {
-        log.debug("TestServiceImpl.testUpload");
+        log.info("TestServiceImpl.testUpload");
     }
 
     @Override
     public List<Object> testKafka(String service) throws AppException {
-        log.debug("TestServiceImpl.testKafka");
+        log.info("TestServiceImpl.testKafka");
         var span = tracer.nextSpan().name("testKafka").start();
         try (var ws = tracer.withSpanInScope(span)) {
-            var messageToDefaultTopic = String.format("topic: %s, message from: user service, to: %s service", kafkaProducerProps.getDefaultTopicName(), service);
-            var defaultTopicEvent = AppEvent.builder()
+            var messageToDefaultTopic = String.format("topic: %s, message from: user service, to: %s service", kafkaProducerProps.getTemplateTopicName(), service);
+            var templateTopicEvent = AppEvent.builder()
                     .payload(messageToDefaultTopic)
                     .uuid(UUID.randomUUID().toString())
                     .build();
-            span.tag("defaultTopicEvent uuid", defaultTopicEvent.getUuid());
-            kafkaTemplate.send(kafkaProducerProps.getDefaultTopicName(),
-                    defaultTopicEvent);
-            span.annotate("defaultTopicEvent sent");
+            span.tag("templateTopicEvent uuid", templateTopicEvent.getUuid());
+            kafkaTemplate.send(kafkaProducerProps.getTemplateTopicName(),
+                    templateTopicEvent);
+            span.annotate("templateTopicEvent sent");
             var messageToTestTopic = String.format("topic: %s, message from: user service, to: %s service", kafkaProducerProps.getTestTopicName(), service);
             var testTopicAppEvent = AppEvent.builder()
                     .payload(messageToTestTopic)
@@ -308,9 +307,9 @@ public class TestServiceImpl implements TestService {
             kafkaTemplate.send(kafkaProducerProps.getTestTopicName(),
                     testTopicAppEvent);
             span.annotate("testTopicAppEvent sent");
-            return List.of(defaultTopicEvent, testTopicAppEvent);
+            return List.of(templateTopicEvent, testTopicAppEvent);
         } catch (RuntimeException e) {
-            log.debug("e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage());
+            log.info("e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage());
             span.error(e);
             throw e;
         } finally {
@@ -320,7 +319,7 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public Object testFeign(String service, String method, String... params) throws AppException {
-        log.debug("TestServiceImpl.testFeign");
+        log.info("TestServiceImpl.testFeign");
         var span = tracer.nextSpan().name("testFeign").start();
         try (var ws = tracer.withSpanInScope(span)) {
             Object response;
@@ -330,10 +329,10 @@ public class TestServiceImpl implements TestService {
                     switch (method) {
                         case TestConst.PRODUCT_TEST -> response = inventoryClient.productTest(appSecurityUtils.getAuthorizationHeader());
                         case TestConst.PRODUCT_FIND_ALL -> {
-                            Integer pageNumber = NumberUtils.toInt(params[0], 1);
-                            Integer pageSize = NumberUtils.toInt(params[1], 1);
-                            String sortColumn = StringUtils.defaultString(params[2], null);
-                            String sortDirection = StringUtils.defaultString(params[3], null);
+                            var pageNumber = NumberUtils.toInt(params[0], 1);
+                            var pageSize = NumberUtils.toInt(params[1], 1);
+                            var sortColumn = StringUtils.defaultString(params[2], null);
+                            var sortDirection = StringUtils.defaultString(params[3], null);
                             response = inventoryClient.productFindAll(appSecurityUtils.getAuthorizationHeader(),
                                     pageNumber, pageSize, sortColumn, sortDirection);
                         }
@@ -348,7 +347,7 @@ public class TestServiceImpl implements TestService {
             span.tag(String.format("%sClient.%s response", service, method), response.toString());
             return response;
         } catch (RuntimeException e) {
-            log.debug("e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage());
+            log.info("e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage());
             span.error(e);
             throw e;
         } finally {

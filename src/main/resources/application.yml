@@ -1,42 +1,45 @@
 app:
-  application-name: user # change
-  server-port: 8086 # change
-  application-version: v1
-  context-path: api/${app.application-name}/${app.application-version}
+  name: user # change
+  port: 8086 # change
+  version: v1
+  context-path: api/${app.name}/${app.version}
   inventory-service:
-    context-path: api/inventory/${app.application-version}
+    name: inventory
+    context-path: api/${app.inventory-service.name}/${app.version}
   database:
     hostname: localhost # change
     port: 5436 # change
-    name: ${app.application-name}_service_${app.application-version}
+    name: ${app.name}_service_${app.version}
   eureka:
     hostname: localhost # change
     port: 8761
   keycloak:
-    host: localhost # change
+    hostname: localhost # change
     port: 8090
-    issuer-uri: http://${app.keycloak.host}:${app.keycloak.port}/realms/spring-boot-microservices-realm
+    issuer-uri: http://${app.keycloak.hostname}:${app.keycloak.port}/realms/spring-boot-microservices-realm
   gateway-service:
     hostname: localhost # change
-    server-port: 8181
-  swagger-gateway-service:
-    hostname: localhost # change
-  swagger-info:
-    title: User Service # change
-    version: v1.0 # change
-  #zipkin
+    port: 8181
+  swagger:
+    server:
+      hostname: localhost
+      port: 8181
+      url: http://${app.swagger.server.hostname}:${app.swagger.server.port}/${app.context-path}
+    info:
+      title: User Service # change
+      version: v1.0 # change
+
   zipkin:
     hostname: localhost
-    server-port: 9411
+    port: 9411
     context-path: api/v2/spans
-    endpoint: http://${app.zipkin.hostname}:${app.zipkin.server-port}/${app.zipkin.context-path}
-  #kafka
+    endpoint: http://${app.zipkin.hostname}:${app.zipkin.port}/${app.zipkin.context-path}
   kafka:
     hostname: localhost
     port: 9092
-    default-topic: default-topic
-    concurrency: 3
-    group-id: default-group-id
+    template:
+      producer:
+        topic-name: default-topic
 
 security:
   enabled: true
@@ -51,7 +54,7 @@ security:
 
 spring:
   application:
-    name: ${app.application-name}-service
+    name: ${app.name}-service
   profiles:
     include: aws
     active: local
@@ -59,7 +62,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://${app.keycloak.host}:${app.keycloak.port}/realms/spring-boot-microservices-realm
+          issuer-uri: ${app.keycloak.issuer-uri}
   datasource:
     url: jdbc:postgresql://${app.database.hostname}:${app.database.port}/${app.database.name}
     username: postgres
@@ -84,32 +87,14 @@ spring:
     enabled: true
     bootstrap-servers: ${app.kafka.hostname}:${app.kafka.port}
     template:
-      default-topic: ${app.kafka.default-topic}
+      producer:
+        topic-name: ${app.kafka.template.producer.topic-name}
     producers:
       test-topic:
         topic-name: test-topic
-#      order-pending:
-#        topic-name: order-pending
-
-#    consumers:
-#      order-item-not-available:
-#        topic-name: order-item-not-available
-#        group-id: order-item-not-available-${spring.application.name}
-#        properties:
-#          concurrency: ${app.kafka-concurrency}
-#      order-processing:
-#        topic-name: order-processing
-#        group-id: order-processing-${spring.application.name}
-#        properties:
-#          concurrency: ${app.kafka-concurrency}
-#      order-payment-processing:
-#        topic-name: order-payment-processing
-#        group-id: order-payment-processing-${spring.application.name}
-#        properties:
-#          concurrency: ${app.kafka-concurrency}
 
 server:
-  port: ${app.server-port}
+  port: ${app.port}
   servlet:
     context-path: /${app.context-path}
 
@@ -119,25 +104,12 @@ feign:
     config:
       inventory-client:
         name: inventory-client
-        url: http://${app.gateway-service.hostname}:${app.gateway-service.server-port}/${app.inventory-service.context-path}
-      keycloak-client:
-        name: keycloak-client
-        url: ${app.keycloak.issuer-uri}
-        client-id: microservices-auth-client
-        client-secret: 123456789
-#        realm: spring-boot-microservices-realm
-#        server-url: http://${app.keycloak.host}:${app.keycloak.port}
-#        enabled: true
-#        issuer-uri: ${app.keycloak-issuer-uri}
-
-#      payment-client:
-#        name: payment-client
-#        url: http://${app.gateway-service.hostname}:${app.gateway-service-server-port}/${app.payment-service-context-path}
+        url: http://${app.gateway-service.hostname}:${app.gateway-service.port}/${app.inventory-service.context-path}
 
 keycloak-admin-client:
   enabled: true
   realm: spring-boot-microservices-realm
-  server-url: http://${app.keycloak.host}:${app.keycloak.port}
+  server-url: http://${app.keycloak.hostname}:${app.keycloak.port}
   client-id: microservices-admin-client
   client-secret: 123456789
   issuer-uri: ${app.keycloak.issuer-uri}
@@ -155,9 +127,11 @@ logging:
   level:
     root: INFO
     com.eric6166: DEBUG
+    org.apache.http: DEBUG
     org.hibernate.sql: DEBUG
     org.hibernate.type.descriptor.sql: TRACE
-    org.apache.http: DEBUG
+    org.springframework.kafka: WARN
+    org.apache.kafka: WARN
   pattern:
     level: "%5p[${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
 
@@ -169,11 +143,11 @@ springdoc:
 
 swagger:
   server:
-    url: http://${app.swagger-gateway-service.hostname}:${app.gateway-service.server-port}/${app.context-path}
+    url: ${app.swagger.server.url}
   info:
-    title: ${app.swagger-info.title}
-    version: ${app.swagger-info.version}
-    description: Documentation ${app.swagger-info.title} ${app.swagger-info.version}
+    title: ${app.swagger.info.title}
+    version: ${app.swagger.info.version}
+    description: Documentation ${app.swagger.info.title} ${app.swagger.info.version}
 
 management:
   tracing:
@@ -202,7 +176,7 @@ management:
 
 resilience4j:
   circuitbreaker:
-    instances:
+    configs:
       default:
         registerHealthIndicator: true
         event-consumer-buffer-size: 10
@@ -212,6 +186,11 @@ resilience4j:
         waitDurationInOpenState: 5s
         permittedNumberOfCallsInHalfOpenState: 3
         automaticTransitionFromOpenToHalfOpenEnabled: true
+        ignoreExceptions:
+          - com.eric6166.base.exception.AppBadRequestException
+    instances:
+      default:
+        baseConfig: default
   timelimiter:
     instances:
       default:

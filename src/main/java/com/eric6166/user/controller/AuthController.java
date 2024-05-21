@@ -32,19 +32,19 @@ public class AuthController {
 
     @GetMapping("/test")
     public ResponseEntity<Object> test() throws AppException, IOException {
-        log.debug("AuthController.test"); // comment // for local testing
+        log.info("AuthController.test"); // comment // for local testing
         return ResponseEntity.ok(new AppResponse<>(authService.test()));
     }
 
     @PostMapping("/register")
     public ResponseEntity<Object> register(@RequestBody @Valid RegisterAccountRequest request) throws AppException {
-        log.debug("AuthController.register"); // comment // for local testing
+        log.info("AuthController.register"); // comment // for local testing
         return ResponseEntity.ok(new AppResponse<>(authService.register(request)));
     }
 
     @PostMapping("/token")
     public ResponseEntity<Object> getToken(@RequestBody @Valid GetTokenRequest request) throws AppException, IOException {
-        log.debug("AuthController.register"); // comment // for local testing
+        log.info("AuthController.register"); // comment // for local testing
         return ResponseEntity.ok(new AppResponse<>(authService.getToken(request)));
     }
 
