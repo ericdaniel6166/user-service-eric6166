@@ -201,10 +201,12 @@ resilience4j:
   retry:
     instances:
       default:
-        maxAttempts: 2
-        waitDuration: 1s
+        maxAttempts: 3
+        waitDuration: 60s
         enableExponentialBackoff: true
         exponentialBackoffMultiplier: 2
         ignoreExceptions:
           - com.eric6166.base.exception.AppBadRequestException
+        retryExceptions:
+          - com.eric6166.base.exception.AppInternalServiceException
 
