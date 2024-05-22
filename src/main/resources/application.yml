@@ -162,6 +162,8 @@ management:
   health:
     circuitbreakers:
       enabled: true
+    ratelimiters:
+      enabled: true
     diskspace:
       enabled: true
     db:
@@ -181,7 +183,7 @@ resilience4j:
         registerHealthIndicator: true
         event-consumer-buffer-size: 10
         slidingWindowType: COUNT_BASED
-        slidingWindowSize: 5
+        slidingWindowSize: 10
         failureRateThreshold: 50
         waitDurationInOpenState: 5s
         permittedNumberOfCallsInHalfOpenState: 3
@@ -194,10 +196,15 @@ resilience4j:
   timelimiter:
     instances:
       default:
-        timeout-duration: 3s
+        timeoutDuration: 3s
+        cancelRunningFuture: true
   retry:
     instances:
       default:
-        max-attempts: 3
-        wait-duration: 5s
+        maxAttempts: 2
+        waitDuration: 1s
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+        ignoreExceptions:
+          - com.eric6166.base.exception.AppBadRequestException
 

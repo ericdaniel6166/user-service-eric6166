@@ -319,6 +319,7 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public Object testFeign(String service, String method, String... params) throws AppException {
+
         log.info("TestServiceImpl.testFeign");
         var span = tracer.nextSpan().name("testFeign").start();
         try (var ws = tracer.withSpanInScope(span)) {

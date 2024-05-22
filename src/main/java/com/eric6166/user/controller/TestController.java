@@ -15,6 +15,8 @@ import com.eric6166.user.dto.TestSqsRequest;
 import com.eric6166.user.dto.TestUploadRequest;
 import com.eric6166.user.service.TestService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
+import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
@@ -38,6 +40,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 @RestController
 @Slf4j
@@ -193,14 +197,61 @@ public class TestController {
         return ResponseEntity.ok(testService.testKafka(service));
     }
 
+//    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+//    @CircuitBreaker(name = "default")
+//    @Retry(name = "default")
+////    @TimeLimiter(name = "default")
+////    @RateLimiter(name = "default")
+////    @Bulkhead(name = "default")
+//    @GetMapping("/resilience4j")
+//    public ResponseEntity<Object> testResilience4j(@RequestParam(defaultValue = TestConst.INVENTORY, required = false) String service,
+//                                                   @RequestParam(defaultValue = TestConst.PRODUCT_TEST, required = false) String method,
+//                                                   @RequestParam(name = TestConst.FIELD_PARAM, required = false) String... params) throws AppException {
+//        log.info("TestController.testResilience4j");
+//        return ResponseEntity.ok(testService.testFeign(service, method, params));
+//    }
+
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+//    @CircuitBreaker(name = "default", fallbackMethod = "defaultCircuitBreakerFallBackMethod")
     @CircuitBreaker(name = "default")
+//    @Retry(name = "default", fallbackMethod = "defaultRetryFallBackMethod")
+    @TimeLimiter(name = "default", fallbackMethod = "defaultTimeLimiterFallBackMethod")
+//    @RateLimiter(name = "default")
+//    @Bulkhead(name = "default")
     @GetMapping("/resilience4j")
-    public ResponseEntity<Object> testResilience4j(@RequestParam(defaultValue = TestConst.INVENTORY, required = false) String service,
-                                                   @RequestParam(defaultValue = TestConst.PRODUCT_TEST, required = false) String method,
-                                                   @RequestParam(name = TestConst.FIELD_PARAM, required = false) String... params) throws AppException {
+    public CompletionStage<ResponseEntity<Object>> testResilience4j(@RequestParam(defaultValue = TestConst.INVENTORY, required = false) String service,
+                                                                    @RequestParam(defaultValue = TestConst.PRODUCT_TEST, required = false) String method,
+                                                                    @RequestParam(name = TestConst.FIELD_PARAM, required = false) String... params) throws AppException {
         log.info("TestController.testResilience4j");
-        return ResponseEntity.ok(testService.testFeign(service, method, params));
+        return CompletableFuture.completedFuture(ResponseEntity.ok(testService.testFeign(service, method, params)));
     }
+
+    public CompletionStage<ResponseEntity<Object>> defaultCircuitBreakerFallBackMethod(String service,
+                                                                                       String method,
+                                                                                       String[] params,
+                                                                                       RuntimeException e) {
+        log.info("defaultCircuitBreakerFallBackMethod, e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage()); // comment // for local testing
+        return CompletableFuture.supplyAsync(() -> BaseUtils.buildFallBackMethodResponseExceptionEntity(
+                AppExceptionUtils.buildFallBackMethodErrorResponse(HttpStatus.SERVICE_UNAVAILABLE)));
+    }
+
+    public CompletionStage<ResponseEntity<Object>> defaultTimeLimiterFallBackMethod(String service,
+                                                                                    String method,
+                                                                                    String[] params,
+                                                                                    RuntimeException e) {
+        log.info("defaultTimeLimiterFallBackMethod, e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage()); // comment // for local testing
+        return CompletableFuture.supplyAsync(() -> BaseUtils.buildFallBackMethodResponseExceptionEntity(
+                AppExceptionUtils.buildFallBackMethodErrorResponse(HttpStatus.SERVICE_UNAVAILABLE)));
+    }
+
+    public CompletionStage<ResponseEntity<Object>> defaultRetryFallBackMethod(String service,
+                                                                              String method,
+                                                                              String[] params,
+                                                                              RuntimeException e) {
+        log.info("defaultRetryFallBackMethod, e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage()); // comment // for local testing
+        return CompletableFuture.supplyAsync(() -> BaseUtils.buildFallBackMethodResponseExceptionEntity(
+                AppExceptionUtils.buildFallBackMethodErrorResponse(HttpStatus.SERVICE_UNAVAILABLE)));
+    }
+
 
 }
