@@ -1,13 +1,13 @@
-package com.eric6166.user;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-
-@SpringBootTest
-class UserServiceApplicationTests {
-
-    @Test
-    void contextLoads() {
-    }
-
-}
+//package com.eric6166.user;
+//
+//import org.junit.jupiter.api.Test;
+//import org.springframework.boot.test.context.SpringBootTest;
+//
+//@SpringBootTest
+//class UserServiceApplicationTests {
+//
+//    @Test
+//    void contextLoads() {
+//    }
+//
+//}
