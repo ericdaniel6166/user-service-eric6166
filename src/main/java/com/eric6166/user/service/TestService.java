@@ -21,7 +21,7 @@ public interface TestService {
 
     void testUpload(TestUploadRequest request);
 
-    Object isBucketExistedBucket(String bucket);
+    Object isBucketExistedBucket(String bucket) throws AppException;
 
     Object createBucket(TestAWSRequest request) throws AppException;
 

@@ -97,7 +97,7 @@ public class TestController {
 
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping(value = "/aws/s3/bucket")
-    public ResponseEntity<Object> isBucketExistedBucket(@RequestParam String bucket) {
+    public ResponseEntity<Object> isBucketExistedBucket(@RequestParam String bucket) throws AppException {
         log.info("TestController.isBucketExistedBucket");
         return ResponseEntity.ok(new AppResponse<>(testService.isBucketExistedBucket(bucket)));
     }

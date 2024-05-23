@@ -52,7 +52,7 @@ public class TestServiceImpl implements TestService {
     AppSqsClient appSqsClient;
 
     @Override
-    public Object isBucketExistedBucket(String bucket) {
+    public Object isBucketExistedBucket(String bucket) throws AppException {
         var isBucketExisted = appS3Client.isBucketExisted(bucket);
         Map<String, Object> response = new HashMap<>();
         response.put("isBucketExisted", isBucketExisted);
