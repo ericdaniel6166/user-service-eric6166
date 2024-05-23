@@ -180,7 +180,7 @@ public class TestServiceImpl implements TestService {
             i.setId(UUID.randomUUID().toString());
             return i;
         }).toList());
-        var o = appSqsClient.sendBatchMessageByQueueName(request.getQueueName(), request);
+        var o = appSqsClient.sendMessageBatchByQueueName(request.getQueueName(), request.getDelaySeconds(), request.getMessageGroupId(), request);
         Map<String, Object> response = new HashMap<>();
         response.put("hasSuccessful", o.hasSuccessful());
         response.put("hasFailed", o.hasFailed());
