@@ -19,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.representations.idm.CredentialRepresentation;
-import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -110,7 +109,7 @@ public class AuthServiceImpl implements AuthService {
             var customerOpt = keycloakAminClient.searchGroupByName(SecurityConst.GROUP_CUSTOMER);
             span.annotate("keycloakService.searchGroupByName End");
             if (customerOpt.isPresent()) {
-                GroupRepresentation customer = customerOpt.get();
+                var customer = customerOpt.get();
                 user.setGroups(Collections.singletonList(customer.getPath()));
             }
             user.setEnabled(true); //improvement later

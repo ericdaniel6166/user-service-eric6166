@@ -35,7 +35,9 @@ class TestControllerTest {
         var service = "inventory";
         var method = TestConst.PRODUCT_TEST;
         var expected = "product test";
+
         Mockito.when(testService.testFeign(service, method, null)).thenReturn(expected);
+
         mvc.perform(MockMvcRequestBuilders
                         .get(URL_TEMPLATE + "/feign")
                         .with(SecurityMockMvcRequestPostProcessors
@@ -50,5 +52,34 @@ class TestControllerTest {
                 .andExpect(MockMvcResultMatchers.content().string(expected));
 
     }
+
+    @Test
+    void testAdmin() throws Exception {
+        mvc.perform(MockMvcRequestBuilders
+                        .get(URL_TEMPLATE + "/admin")
+                        .with(SecurityMockMvcRequestPostProcessors
+                                .jwt()
+                                .authorities(new SimpleGrantedAuthority(TestConst.ROLE_ADMIN)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string("test admin"));
+    }
+
+    @Test
+    void testAdmin_thenReturnOk() throws Exception {
+        mvc.perform(MockMvcRequestBuilders
+                        .get(URL_TEMPLATE + "/admin")
+                        .with(SecurityMockMvcRequestPostProcessors
+                                .jwt()
+                                .authorities(new SimpleGrantedAuthority(TestConst.ROLE_ADMIN)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string("test admin"));
+    }
+
 
 }
