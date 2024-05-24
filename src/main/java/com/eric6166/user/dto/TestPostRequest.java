@@ -2,7 +2,7 @@ package com.eric6166.user.dto;
 
 import com.eric6166.base.utils.AppDateUtils;
 import com.eric6166.base.utils.BaseConst;
-import com.eric6166.base.validation.ValidDate;
+import com.eric6166.base.validation.ValidDateTime;
 import com.eric6166.base.validation.ValidNumber;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Max;
@@ -21,9 +21,9 @@ import java.time.LocalDateTime;
 public class TestPostRequest {
     LocalDateTime dateTime;
     LocalDate date;
-    @ValidDate(flag = ValidDate.Flag.DATE_TIME, pattern = AppDateUtils.DEFAULT_DATE_TIME_PATTERN)
+    @ValidDateTime(flag = ValidDateTime.Flag.DATE_TIME, pattern = AppDateUtils.DEFAULT_DATE_TIME_PATTERN)
     String dateTimeStr;
-    @ValidDate(flag = ValidDate.Flag.DATE, pattern = AppDateUtils.DEFAULT_DATE_PATTERN)
+    @ValidDateTime(flag = ValidDateTime.Flag.DATE, pattern = AppDateUtils.DEFAULT_DATE_PATTERN)
     String dateStr;
     @Digits(integer = BaseConst.MAXIMUM_BIG_DECIMAL_INTEGER, fraction = BaseConst.MAXIMUM_BIG_DECIMAL_FRACTION)
     @Positive

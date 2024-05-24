@@ -230,7 +230,7 @@ public class TestServiceImpl implements TestService {
         var o = appS3Client.copyObject(request.getSourceBucket(), request.getSourceKey(), request.getDestinationBucket(), request.getDestinationKey());
         Map<String, Object> r = new HashMap<>();
         r.put("copyObjectResult.eTag", o.copyObjectResult().eTag());
-        r.put("copyObjectResult.lastModified", LocalDateTime.ofInstant(o.copyObjectResult().lastModified(), BaseConst.DEFAULT_ZONE_ID).toString());
+        r.put("copyObjectResult.lastModified", LocalDateTime.ofInstant(o.copyObjectResult().lastModified(), AppDateUtils.DEFAULT_ZONE_ID).toString());
         r.put("serverSideEncryption.name", o.serverSideEncryption().name());
 
         return r;
