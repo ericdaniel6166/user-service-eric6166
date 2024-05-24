@@ -21,9 +21,9 @@ import java.time.LocalDateTime;
 public class TestPostRequest {
     LocalDateTime dateTime;
     LocalDate date;
-    @ValidDateTime(flag = ValidDateTime.Flag.DATE_TIME, pattern = DateTimeUtils.DEFAULT_DATE_TIME_PATTERN)
+    @ValidDateTime(flag = ValidDateTime.Flag.LOCAL_DATE_TIME, pattern = DateTimeUtils.DEFAULT_DATE_TIME_PATTERN)
     String dateTimeStr;
-    @ValidDateTime(flag = ValidDateTime.Flag.DATE, pattern = DateTimeUtils.DEFAULT_DATE_PATTERN)
+    @ValidDateTime(flag = ValidDateTime.Flag.LOCAL_DATE, pattern = DateTimeUtils.DEFAULT_DATE_PATTERN)
     String dateStr;
     @Digits(integer = BaseConst.MAXIMUM_BIG_DECIMAL_INTEGER, fraction = BaseConst.MAXIMUM_BIG_DECIMAL_FRACTION)
     @Positive
