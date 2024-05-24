@@ -40,7 +40,7 @@ public class TestPostRequest {
     String numberStr;
     @ValidNumber(flag = ValidNumber.Flag.DIGITS)
     String digitStr;
-    @ValidNumber(flag = ValidNumber.Flag.INTEGER)
+    @ValidNumber(flag = ValidNumber.Flag.BIG_INTEGER)
     String longStr;
 
 
