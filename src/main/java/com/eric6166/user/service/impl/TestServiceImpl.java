@@ -256,8 +256,12 @@ public class TestServiceImpl implements TestService {
     @Override
     public Object testPostForm(TestPostFormRequest request) {
         Map<String, Object> m = new HashMap<>();
-        m.put("dateTimeStr", DateTimeUtils.toLocalDateTime(request.getDateTime(), DateTimeUtils.DEFAULT_DATE_TIME_PATTERN));
-        m.put("dateStr", DateTimeUtils.toLocalDate(request.getDate(), DateTimeUtils.DEFAULT_DATE_PATTERN));
+        if (StringUtils.isNotBlank(request.getDateTime())) {
+            m.put("dateTimeStr", DateTimeUtils.toLocalDateTime(request.getDateTime(), DateTimeUtils.DEFAULT_DATE_TIME_PATTERN));
+        }
+        if (StringUtils.isNotBlank(request.getDate())) {
+            m.put("dateStr", DateTimeUtils.toLocalDate(request.getDate(), DateTimeUtils.DEFAULT_DATE_PATTERN));
+        }
         return m;
     }
 
