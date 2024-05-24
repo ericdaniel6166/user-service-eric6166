@@ -4,8 +4,7 @@ import brave.Tracer;
 import com.eric6166.aws.s3.AppS3Client;
 import com.eric6166.aws.sqs.AppSqsClient;
 import com.eric6166.base.exception.AppException;
-import com.eric6166.base.utils.AppDateUtils;
-import com.eric6166.base.utils.BaseConst;
+import com.eric6166.base.utils.DateTimeUtils;
 import com.eric6166.base.utils.TestConst;
 import com.eric6166.common.config.kafka.AppEvent;
 import com.eric6166.security.utils.AppSecurityUtils;
@@ -230,7 +229,7 @@ public class TestServiceImpl implements TestService {
         var o = appS3Client.copyObject(request.getSourceBucket(), request.getSourceKey(), request.getDestinationBucket(), request.getDestinationKey());
         Map<String, Object> r = new HashMap<>();
         r.put("copyObjectResult.eTag", o.copyObjectResult().eTag());
-        r.put("copyObjectResult.lastModified", LocalDateTime.ofInstant(o.copyObjectResult().lastModified(), AppDateUtils.DEFAULT_ZONE_ID).toString());
+        r.put("copyObjectResult.lastModified", LocalDateTime.ofInstant(o.copyObjectResult().lastModified(), DateTimeUtils.DEFAULT_ZONE_ID).toString());
         r.put("serverSideEncryption.name", o.serverSideEncryption().name());
 
         return r;
@@ -249,16 +248,16 @@ public class TestServiceImpl implements TestService {
     @Override
     public Object testPost(TestPostRequest request) {
         Map<String, Object> m = new HashMap<>();
-        m.put("dateTimeStr", AppDateUtils.toLocalDateTime(request.getDateTimeStr(), AppDateUtils.DEFAULT_DATE_TIME_PATTERN));
-        m.put("dateStr", AppDateUtils.toLocalDate(request.getDateStr(), AppDateUtils.DEFAULT_DATE_PATTERN));
+        m.put("dateTimeStr", DateTimeUtils.toLocalDateTime(request.getDateTimeStr(), DateTimeUtils.DEFAULT_DATE_TIME_PATTERN));
+        m.put("dateStr", DateTimeUtils.toLocalDate(request.getDateStr(), DateTimeUtils.DEFAULT_DATE_PATTERN));
         return m;
     }
 
     @Override
     public Object testPostForm(TestPostFormRequest request) {
         Map<String, Object> m = new HashMap<>();
-        m.put("dateTimeStr", AppDateUtils.toLocalDateTime(request.getDateTime(), AppDateUtils.DEFAULT_DATE_TIME_PATTERN));
-        m.put("dateStr", AppDateUtils.toLocalDate(request.getDate(), AppDateUtils.DEFAULT_DATE_PATTERN));
+        m.put("dateTimeStr", DateTimeUtils.toLocalDateTime(request.getDateTime(), DateTimeUtils.DEFAULT_DATE_TIME_PATTERN));
+        m.put("dateStr", DateTimeUtils.toLocalDate(request.getDate(), DateTimeUtils.DEFAULT_DATE_PATTERN));
         return m;
     }
 
