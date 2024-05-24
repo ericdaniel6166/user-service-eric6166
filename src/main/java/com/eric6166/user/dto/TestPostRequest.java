@@ -25,6 +25,9 @@ public class TestPostRequest {
     String dateTimeStr;
     @ValidDateTime(flag = ValidDateTime.Flag.LOCAL_DATE, pattern = DateTimeUtils.DEFAULT_DATE_PATTERN)
     String dateStr;
+    @ValidDateTime(flag = ValidDateTime.Flag.LOCAL_TIME, pattern = DateTimeUtils.DEFAULT_TIME_PATTERN)
+    String timeStr;
+
     @Digits(integer = BaseConst.MAXIMUM_BIG_DECIMAL_INTEGER, fraction = BaseConst.MAXIMUM_BIG_DECIMAL_FRACTION)
     @Positive
     BigDecimal number;
