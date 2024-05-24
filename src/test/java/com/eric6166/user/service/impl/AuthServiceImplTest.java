@@ -18,6 +18,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.keycloak.representations.idm.GroupRepresentation;
@@ -68,11 +69,32 @@ class AuthServiceImplTest {
 
     @BeforeAll
     static void setUpAll() {
+
     }
 
-//    @BeforeEach
-//    void setUp() {
-//    }
+    private static Optional<GroupRepresentation> mockCustomerGroupRepresentationOpt() {
+        var customer = new GroupRepresentation();
+        customer.setPath("/customer");
+        return Optional.of(customer);
+    }
+
+    private static RegisterAccountRequest mockRegisterAccountRequest() {
+        return RegisterAccountRequest.builder()
+                .username("customer")
+                .email("customer@customer.com")
+                .password("P@ssw0rd")
+                .confirmPassword("P@ssw0rd")
+                .build();
+    }
+
+    @BeforeEach
+    void setUp() {
+        Mockito.when(tracer.nextSpan()).thenReturn(span);
+        Mockito.when(span.name(Mockito.anyString())).thenReturn(span);
+        Mockito.when(span.start()).thenReturn(span);
+        Mockito.when(tracer.withSpanInScope(span)).thenReturn(ws);
+    }
+
 //
 //    @AfterEach
 //    void tearDown() {
@@ -80,21 +102,9 @@ class AuthServiceImplTest {
 
     @Test
     void register() throws AppException {
-        var request = RegisterAccountRequest.builder()
-                .username("customer")
-                .email("customer@customer.com")
-                .password("P@ssw0rd")
-                .confirmPassword("P@ssw0rd")
-                .build();
+        var request = mockRegisterAccountRequest();
 
-        Mockito.when(tracer.nextSpan()).thenReturn(span);
-        Mockito.when(span.name(Mockito.anyString())).thenReturn(span);
-        Mockito.when(span.start()).thenReturn(span);
-        Mockito.when(tracer.withSpanInScope(span)).thenReturn(ws);
-
-        var customer = new GroupRepresentation();
-        customer.setPath("/customer");
-        var customerOpt = Optional.of(customer);
+        var customerOpt = mockCustomerGroupRepresentationOpt();
         Mockito.when(keycloakAminClient.searchGroupByName(SecurityConst.GROUP_CUSTOMER)).thenReturn(customerOpt);
         Mockito.when(keycloakAminClient.createUser(Mockito.any())).thenReturn(response);
 
@@ -121,21 +131,9 @@ class AuthServiceImplTest {
         Response.StatusType statusInfo = Response.Status.INTERNAL_SERVER_ERROR;
         var e = Assertions.assertThrows(ResponseStatusException.class,
                 () -> {
-                    var request = RegisterAccountRequest.builder()
-                            .username("customer")
-                            .email("customer@customer.com")
-                            .password("P@ssw0rd")
-                            .confirmPassword("P@ssw0rd")
-                            .build();
+                    var request = mockRegisterAccountRequest();
 
-                    Mockito.when(tracer.nextSpan()).thenReturn(span);
-                    Mockito.when(span.name(Mockito.anyString())).thenReturn(span);
-                    Mockito.when(span.start()).thenReturn(span);
-                    Mockito.when(tracer.withSpanInScope(span)).thenReturn(ws);
-
-                    var customer = new GroupRepresentation();
-                    customer.setPath("/customer");
-                    var customerOpt = Optional.of(customer);
+                    var customerOpt = mockCustomerGroupRepresentationOpt();
                     Mockito.when(keycloakAminClient.searchGroupByName(SecurityConst.GROUP_CUSTOMER)).thenReturn(customerOpt);
                     Mockito.when(keycloakAminClient.createUser(Mockito.any())).thenReturn(response);
 
@@ -156,17 +154,7 @@ class AuthServiceImplTest {
     void register_thenThrowAppValidationException() {
         Assertions.assertThrows(AppValidationException.class,
                 () -> {
-                    var request = RegisterAccountRequest.builder()
-                            .username("customer")
-                            .email("customer@customer.com")
-                            .password("P@ssw0rd")
-                            .confirmPassword("P@ssw0rd")
-                            .build();
-
-                    Mockito.when(tracer.nextSpan()).thenReturn(span);
-                    Mockito.when(span.name(Mockito.anyString())).thenReturn(span);
-                    Mockito.when(span.start()).thenReturn(span);
-                    Mockito.when(tracer.withSpanInScope(span)).thenReturn(ws);
+                    var request = mockRegisterAccountRequest();
 
                     Mockito.doThrow(AppValidationException.class).when(userValidation).validateAccountExisted(request);
 
@@ -176,21 +164,9 @@ class AuthServiceImplTest {
 
     @Test
     void register_thenReturnSuccess() throws AppException {
-        var request = RegisterAccountRequest.builder()
-                .username("customer")
-                .email("customer@customer.com")
-                .password("P@ssw0rd")
-                .confirmPassword("P@ssw0rd")
-                .build();
+        var request = mockRegisterAccountRequest();
 
-        Mockito.when(tracer.nextSpan()).thenReturn(span);
-        Mockito.when(span.name(Mockito.anyString())).thenReturn(span);
-        Mockito.when(span.start()).thenReturn(span);
-        Mockito.when(tracer.withSpanInScope(span)).thenReturn(ws);
-
-        var customer = new GroupRepresentation();
-        customer.setPath("/customer");
-        var customerOpt = Optional.of(customer);
+        var customerOpt = mockCustomerGroupRepresentationOpt();
         Mockito.when(keycloakAminClient.searchGroupByName(SecurityConst.GROUP_CUSTOMER)).thenReturn(customerOpt);
         Mockito.when(keycloakAminClient.createUser(Mockito.any())).thenReturn(response);
 

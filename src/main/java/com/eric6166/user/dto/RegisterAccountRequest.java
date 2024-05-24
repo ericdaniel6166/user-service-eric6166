@@ -37,7 +37,7 @@ public class RegisterAccountRequest implements AccountDto, PasswordDto {
     @ValidPassword
     @Size(max = BaseConst.DEFAULT_SIZE_MAX_STRING)
     @ToString.Exclude
-    String password;
+    String password; // improvement: encryption
 
     @NotBlank
     @Size(max = BaseConst.DEFAULT_SIZE_MAX_STRING)

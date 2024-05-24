@@ -102,7 +102,7 @@ public class AuthServiceImpl implements AuthService {
             var credential = new CredentialRepresentation();
             credential.setTemporary(false);
             credential.setType(CredentialRepresentation.PASSWORD);
-            credential.setValue(request.getPassword());
+            credential.setValue(request.getPassword()); // improvement: encryption/decryption
 
             user.setCredentials(Collections.singletonList(credential));
             span.annotate("keycloakService.searchGroupByName Start");
