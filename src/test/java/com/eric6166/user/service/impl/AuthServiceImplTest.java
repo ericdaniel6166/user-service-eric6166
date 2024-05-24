@@ -151,12 +151,24 @@ class AuthServiceImplTest {
     }
 
     @Test
-    void register_thenThrowAppValidationException() {
+    void register_givenUsernameExisted_thenThrowAppValidationException() {
         Assertions.assertThrows(AppValidationException.class,
                 () -> {
                     var request = mockRegisterAccountRequest();
 
-                    Mockito.doThrow(AppValidationException.class).when(userValidation).validateAccountExisted(request);
+                    Mockito.doThrow(AppValidationException.class).when(userValidation).validateUsernameExisted(request.getUsername());
+
+                    authService.register(request);
+                });
+    }
+
+    @Test
+    void register_givenEmailExisted_thenThrowAppValidationException() {
+        Assertions.assertThrows(AppValidationException.class,
+                () -> {
+                    var request = mockRegisterAccountRequest();
+
+                    Mockito.doThrow(AppValidationException.class).when(userValidation).validateEmailExisted(request.getEmail());
 
                     authService.register(request);
                 });

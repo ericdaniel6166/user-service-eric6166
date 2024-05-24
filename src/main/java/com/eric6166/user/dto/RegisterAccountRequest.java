@@ -1,6 +1,5 @@
 package com.eric6166.user.dto;
 
-import com.eric6166.base.dto.AccountDto;
 import com.eric6166.base.dto.PasswordDto;
 import com.eric6166.base.utils.BaseConst;
 import com.eric6166.base.validation.PasswordMatches;
@@ -22,7 +21,7 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RegisterAccountRequest implements AccountDto, PasswordDto {
+public class RegisterAccountRequest implements PasswordDto {
 
     @NotBlank
     @Size(max = BaseConst.DEFAULT_SIZE_MAX_STRING)

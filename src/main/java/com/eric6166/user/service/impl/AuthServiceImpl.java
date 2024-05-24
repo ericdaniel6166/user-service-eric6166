@@ -94,7 +94,8 @@ public class AuthServiceImpl implements AuthService {
         log.info("AuthServiceImpl.register"); // comment // for local testing
         var span = tracer.nextSpan().name("register").start();
         try (var ws = tracer.withSpanInScope(span)) {
-            userValidation.validateAccountExisted(request);
+            userValidation.validateUsernameExisted(request.getUsername());
+            userValidation.validateEmailExisted(request.getEmail());
             var user = new UserRepresentation();
             user.setUsername(request.getUsername());
             user.setEmail(request.getEmail());
