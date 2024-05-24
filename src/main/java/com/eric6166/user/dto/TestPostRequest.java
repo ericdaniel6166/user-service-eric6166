@@ -33,11 +33,11 @@ public class TestPostRequest {
 
     @Min(value = 1)
     @Max(value = 10)
-    @ValidNumber(flag = ValidNumber.Flag.IS_PARSEABLE)
+    @ValidNumber(flag = ValidNumber.Flag.PARSEABLE)
     String numberStr;
-    @ValidNumber(flag = ValidNumber.Flag.IS_DIGITS)
+    @ValidNumber(flag = ValidNumber.Flag.DIGITS)
     String digitStr;
-    @ValidNumber(flag = ValidNumber.Flag.IS_INTEGER)
+    @ValidNumber(flag = ValidNumber.Flag.INTEGER)
     String longStr;
 
 
