@@ -4,6 +4,7 @@ import brave.Tracer;
 import com.eric6166.aws.s3.AppS3Client;
 import com.eric6166.aws.sqs.AppSqsClient;
 import com.eric6166.base.exception.AppException;
+import com.eric6166.base.utils.AppDateUtils;
 import com.eric6166.base.utils.BaseConst;
 import com.eric6166.base.utils.TestConst;
 import com.eric6166.common.config.kafka.AppEvent;
@@ -12,6 +13,8 @@ import com.eric6166.user.config.feign.InventoryClient;
 import com.eric6166.user.config.kafka.KafkaProducerProps;
 import com.eric6166.user.dto.TestAWSRequest;
 import com.eric6166.user.dto.TestAWSUploadRequest;
+import com.eric6166.user.dto.TestPostFormRequest;
+import com.eric6166.user.dto.TestPostRequest;
 import com.eric6166.user.dto.TestS3ObjectRequest;
 import com.eric6166.user.dto.TestSqsBatchDeleteRequest;
 import com.eric6166.user.dto.TestSqsBatchRequest;
@@ -241,6 +244,22 @@ public class TestServiceImpl implements TestService {
         r.put("url", o.url().toString());
         r.put("isBrowserExecutable", o.isBrowserExecutable());
         return r;
+    }
+
+    @Override
+    public Object testPost(TestPostRequest request) {
+        Map<String, Object> m = new HashMap<>();
+        m.put("dateTimeStr", AppDateUtils.toLocalDateTime(request.getDateTimeStr(), AppDateUtils.DEFAULT_DATE_TIME_PATTERN));
+        m.put("dateStr", AppDateUtils.toLocalDate(request.getDateStr(), AppDateUtils.DEFAULT_DATE_PATTERN));
+        return m;
+    }
+
+    @Override
+    public Object testPostForm(TestPostFormRequest request) {
+        Map<String, Object> m = new HashMap<>();
+        m.put("dateTimeStr", AppDateUtils.toLocalDateTime(request.getDateTime(), AppDateUtils.DEFAULT_DATE_TIME_PATTERN));
+        m.put("dateStr", AppDateUtils.toLocalDate(request.getDate(), AppDateUtils.DEFAULT_DATE_PATTERN));
+        return m;
     }
 
     //    create queue

@@ -3,6 +3,8 @@ package com.eric6166.user.service;
 import com.eric6166.base.exception.AppException;
 import com.eric6166.user.dto.TestAWSRequest;
 import com.eric6166.user.dto.TestAWSUploadRequest;
+import com.eric6166.user.dto.TestPostFormRequest;
+import com.eric6166.user.dto.TestPostRequest;
 import com.eric6166.user.dto.TestS3ObjectRequest;
 import com.eric6166.user.dto.TestSqsBatchDeleteRequest;
 import com.eric6166.user.dto.TestSqsBatchRequest;
@@ -52,4 +54,8 @@ public interface TestService {
     Object presignGetObject(TestS3ObjectRequest request) throws AppException;
 
     Object copyObject(TestS3ObjectRequest request) throws AppException;
+
+    Object testPost(TestPostRequest request);
+
+    Object testPostForm(TestPostFormRequest request);
 }

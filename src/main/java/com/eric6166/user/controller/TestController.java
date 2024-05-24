@@ -5,6 +5,8 @@ import com.eric6166.base.exception.AppException;
 import com.eric6166.base.utils.TestConst;
 import com.eric6166.user.dto.TestAWSRequest;
 import com.eric6166.user.dto.TestAWSUploadRequest;
+import com.eric6166.user.dto.TestPostFormRequest;
+import com.eric6166.user.dto.TestPostRequest;
 import com.eric6166.user.dto.TestS3ObjectRequest;
 import com.eric6166.user.dto.TestSqsBatchDeleteRequest;
 import com.eric6166.user.dto.TestSqsBatchRequest;
@@ -162,6 +164,20 @@ public class TestController {
         log.info("TestController.testUpload");
         testService.testUpload(request);
         return ResponseEntity.ok("test upload");
+    }
+
+    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping(value = "/test-post")
+    public ResponseEntity<Object> testPost(@Valid @RequestBody TestPostRequest request) {
+        log.info("TestController.testPost");
+        return ResponseEntity.ok(testService.testPost(request));
+    }
+
+    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping(value = "/test-post-form", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<Object> testPostForm(@Valid @ModelAttribute TestPostFormRequest request) {
+        log.info("TestController.testPostForm");
+        return ResponseEntity.ok(testService.testPostForm(request));
     }
 
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
