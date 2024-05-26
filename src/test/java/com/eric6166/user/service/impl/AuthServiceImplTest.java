@@ -66,6 +66,19 @@ class AuthServiceImplTest {
         registerAccountRequest = mockRegisterAccountRequest();
     }
 
+    @BeforeEach
+    void setUp() {
+        Mockito.when(tracer.nextSpan()).thenReturn(span);
+        Mockito.when(span.name(Mockito.anyString())).thenReturn(span);
+        Mockito.when(span.start()).thenReturn(span);
+        Mockito.when(tracer.withSpanInScope(span)).thenReturn(ws);
+    }
+
+//
+//    @AfterEach
+//    void tearDown() {
+//    }
+
     private static Optional<GroupRepresentation> mockCustomerGroupRepresentationOpt() {
         var customer = new GroupRepresentation();
         customer.setPath("/customer");
@@ -80,19 +93,6 @@ class AuthServiceImplTest {
                 .confirmPassword("P@ssw0rd")
                 .build();
     }
-
-    @BeforeEach
-    void setUp() {
-        Mockito.when(tracer.nextSpan()).thenReturn(span);
-        Mockito.when(span.name(Mockito.anyString())).thenReturn(span);
-        Mockito.when(span.start()).thenReturn(span);
-        Mockito.when(tracer.withSpanInScope(span)).thenReturn(ws);
-    }
-
-//
-//    @AfterEach
-//    void tearDown() {
-//    }
 
     @Test
     void register_thenThrowResponseStatusException() {
