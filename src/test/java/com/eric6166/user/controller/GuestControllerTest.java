@@ -23,7 +23,6 @@ class GuestControllerTest {
 
     @Autowired
     MockMvc mvc;
-
     @MockBean
     TestService testService;
 

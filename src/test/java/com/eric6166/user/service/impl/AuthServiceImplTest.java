@@ -37,39 +37,33 @@ import java.util.Optional;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 class AuthServiceImplTest {
 
+    private static Optional<GroupRepresentation> customerOpt;
+    private static RegisterAccountRequest registerAccountRequest;
     @InjectMocks
     AuthServiceImpl authService;
-
     @Mock
     KeycloakAminClient keycloakAminClient;
-
     @Mock
     UserValidation userValidation;
-
     @Mock
     MessageSource messageSource;
-
     @Mock
     Tracer tracer;
-
     @Mock
     Span span;
-
     @Mock
     Tracer.SpanInScope ws;
-
     @Mock
     Response response;
-
     @Mock
     URI location;
-
     @Mock
     AppSecurityUtils appSecurityUtils;
 
     @BeforeAll
     static void setUpAll() {
-
+        customerOpt = mockCustomerGroupRepresentationOpt();
+        registerAccountRequest = mockRegisterAccountRequest();
     }
 
     private static Optional<GroupRepresentation> mockCustomerGroupRepresentationOpt() {
@@ -101,39 +95,11 @@ class AuthServiceImplTest {
 //    }
 
     @Test
-    void register() throws AppException {
-        var request = mockRegisterAccountRequest();
-
-        var customerOpt = mockCustomerGroupRepresentationOpt();
-        Mockito.when(keycloakAminClient.searchGroupByName(SecurityConst.GROUP_CUSTOMER)).thenReturn(customerOpt);
-        Mockito.when(keycloakAminClient.createUser(Mockito.any())).thenReturn(response);
-
-        Mockito.when(response.getLocation()).thenReturn(location);
-        Mockito.when(response.getStatusInfo()).thenReturn(Response.Status.CREATED);
-        Mockito.when(location.getPath()).thenReturn(RandomStringUtils.randomAlphabetic(50, 100));
-
-        var res = "account";
-        Mockito.when(messageSource.getMessage(BaseMessageConst.MGS_RES_ACCOUNT, null, LocaleContextHolder.getLocale())).thenReturn(res);
-        var msg = "account has been created successfully";
-        Mockito.when(messageSource.getMessage(BaseMessageConst.MSG_INF_RESOURCE_CREATED, new String[]{res}, LocaleContextHolder.getLocale())).thenReturn(msg);
-
-        var expected = MessageResponse.builder()
-                .message(StringUtils.capitalize(msg))
-                .build();
-
-        var actual = authService.register(request);
-
-        Assertions.assertEquals(expected, actual);
-    }
-
-    @Test
     void register_thenThrowResponseStatusException() {
         Response.StatusType statusInfo = Response.Status.INTERNAL_SERVER_ERROR;
         var e = Assertions.assertThrows(ResponseStatusException.class,
                 () -> {
-                    var request = mockRegisterAccountRequest();
 
-                    var customerOpt = mockCustomerGroupRepresentationOpt();
                     Mockito.when(keycloakAminClient.searchGroupByName(SecurityConst.GROUP_CUSTOMER)).thenReturn(customerOpt);
                     Mockito.when(keycloakAminClient.createUser(Mockito.any())).thenReturn(response);
 
@@ -141,7 +107,7 @@ class AuthServiceImplTest {
                     Mockito.when(response.getStatusInfo()).thenReturn(statusInfo);
                     Mockito.when(response.getStatus()).thenReturn(statusInfo.getStatusCode());
 
-                    authService.register(request);
+                    authService.register(registerAccountRequest);
                 });
 
         var expected = "Create method returned status " + statusInfo.getReasonPhrase()
@@ -154,11 +120,10 @@ class AuthServiceImplTest {
     void register_givenUsernameExisted_thenThrowAppValidationException() {
         Assertions.assertThrows(AppValidationException.class,
                 () -> {
-                    var request = mockRegisterAccountRequest();
 
-                    Mockito.doThrow(AppValidationException.class).when(userValidation).validateUsernameExisted(request.getUsername());
+                    Mockito.doThrow(AppValidationException.class).when(userValidation).validateUsernameExisted(registerAccountRequest.getUsername());
 
-                    authService.register(request);
+                    authService.register(registerAccountRequest);
                 });
     }
 
@@ -166,19 +131,16 @@ class AuthServiceImplTest {
     void register_givenEmailExisted_thenThrowAppValidationException() {
         Assertions.assertThrows(AppValidationException.class,
                 () -> {
-                    var request = mockRegisterAccountRequest();
 
-                    Mockito.doThrow(AppValidationException.class).when(userValidation).validateEmailExisted(request.getEmail());
+                    Mockito.doThrow(AppValidationException.class).when(userValidation).validateEmailExisted(registerAccountRequest.getEmail());
 
-                    authService.register(request);
+                    authService.register(registerAccountRequest);
                 });
     }
 
     @Test
     void register_thenReturnSuccess() throws AppException {
-        var request = mockRegisterAccountRequest();
 
-        var customerOpt = mockCustomerGroupRepresentationOpt();
         Mockito.when(keycloakAminClient.searchGroupByName(SecurityConst.GROUP_CUSTOMER)).thenReturn(customerOpt);
         Mockito.when(keycloakAminClient.createUser(Mockito.any())).thenReturn(response);
 
@@ -195,7 +157,7 @@ class AuthServiceImplTest {
                 .message(StringUtils.capitalize(msg))
                 .build();
 
-        var actual = authService.register(request);
+        var actual = authService.register(registerAccountRequest);
 
         Assertions.assertEquals(expected, actual);
     }

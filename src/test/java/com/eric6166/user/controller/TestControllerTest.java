@@ -23,10 +23,8 @@ import java.nio.charset.StandardCharsets;
 class TestControllerTest {
 
     private static final String URL_TEMPLATE = "/test";
-
     @Autowired
     MockMvc mvc;
-
     @MockBean
     TestService testService;
 
