@@ -37,7 +37,7 @@ import java.util.Optional;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 class AuthServiceImplTest {
 
-    private static Optional<GroupRepresentation> customerOpt;
+    private static GroupRepresentation customerGroup;
     private static RegisterAccountRequest registerAccountRequest;
     @InjectMocks
     AuthServiceImpl authService;
@@ -62,8 +62,8 @@ class AuthServiceImplTest {
 
     @BeforeAll
     static void setUpAll() {
-        customerOpt = mockCustomerGroupRepresentationOpt();
-        registerAccountRequest = mockRegisterAccountRequest();
+        customerGroup = mockGroupRepresentation("/customer");
+        registerAccountRequest = mockRegisterAccountRequest("customer", "customer@customer.com");
     }
 
     @BeforeEach
@@ -79,16 +79,16 @@ class AuthServiceImplTest {
 //    void tearDown() {
 //    }
 
-    private static Optional<GroupRepresentation> mockCustomerGroupRepresentationOpt() {
-        var customer = new GroupRepresentation();
-        customer.setPath("/customer");
-        return Optional.of(customer);
+    private static GroupRepresentation mockGroupRepresentation(String path) {
+        var group = new GroupRepresentation();
+        group.setPath(path);
+        return group;
     }
 
-    private static RegisterAccountRequest mockRegisterAccountRequest() {
+    private static RegisterAccountRequest mockRegisterAccountRequest(String username, String email) {
         return RegisterAccountRequest.builder()
-                .username("customer")
-                .email("customer@customer.com")
+                .username(username)
+                .email(email)
                 .password("P@ssw0rd")
                 .confirmPassword("P@ssw0rd")
                 .build();
@@ -100,7 +100,7 @@ class AuthServiceImplTest {
         var e = Assertions.assertThrows(ResponseStatusException.class,
                 () -> {
 
-                    Mockito.when(keycloakAminClient.searchGroupByName(SecurityConst.GROUP_CUSTOMER)).thenReturn(customerOpt);
+                    Mockito.when(keycloakAminClient.searchGroupByName(SecurityConst.GROUP_CUSTOMER)).thenReturn(Optional.of(customerGroup));
                     Mockito.when(keycloakAminClient.createUser(Mockito.any())).thenReturn(response);
 
                     Mockito.when(response.getLocation()).thenReturn(location);
@@ -141,7 +141,7 @@ class AuthServiceImplTest {
     @Test
     void register_thenReturnSuccess() throws AppException {
 
-        Mockito.when(keycloakAminClient.searchGroupByName(SecurityConst.GROUP_CUSTOMER)).thenReturn(customerOpt);
+        Mockito.when(keycloakAminClient.searchGroupByName(SecurityConst.GROUP_CUSTOMER)).thenReturn(Optional.of(customerGroup));
         Mockito.when(keycloakAminClient.createUser(Mockito.any())).thenReturn(response);
 
         Mockito.when(response.getLocation()).thenReturn(location);
