@@ -2,11 +2,14 @@ package com.eric6166.user.controller;
 
 import com.eric6166.base.dto.AppResponse;
 import com.eric6166.base.exception.AppException;
+import com.eric6166.base.utils.DateTimeUtils;
 import com.eric6166.base.utils.TestConst;
+import com.eric6166.base.validation.ValidNumber;
 import com.eric6166.user.dto.TestAWSRequest;
 import com.eric6166.user.dto.TestAWSUploadRequest;
 import com.eric6166.user.dto.TestPostFormRequest;
 import com.eric6166.user.dto.TestPostRequest;
+import com.eric6166.user.dto.TestResponse;
 import com.eric6166.user.dto.TestS3ObjectRequest;
 import com.eric6166.user.dto.TestSqsBatchDeleteRequest;
 import com.eric6166.user.dto.TestSqsBatchRequest;
@@ -37,6 +40,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -171,6 +181,29 @@ public class TestController {
     public ResponseEntity<Object> testPost(@Valid @RequestBody TestPostRequest request) {
         log.info("TestController.testPost");
         return ResponseEntity.ok(testService.testPost(request));
+    }
+
+    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping(value = "/test-get")
+    public ResponseEntity<Object> testGet(@RequestParam String paramStr,
+                                          @RequestParam @ValidNumber(flag = ValidNumber.Flag.PARSEABLE) String paramBigDecimal) {
+        log.info("TestController.testGet, {}, {}", paramStr, paramBigDecimal);
+        return ResponseEntity.ok("test get");
+    }
+
+    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping(value = "/test-return")
+    public ResponseEntity<Object> testReturn(@RequestBody TestPostRequest request) {
+        log.info("TestController.testReturn");
+        Map<String, Object> m = new HashMap<>();
+        request.getZoneIds().forEach(s -> {
+            var zonedDateTime = ZonedDateTime.of(LocalDateTime.now(), ZoneOffset.UTC).withZoneSameInstant(ZoneId.of(s));
+            m.put(s, DateTimeUtils.toString(zonedDateTime, DateTimeFormatter.ISO_ZONED_DATE_TIME));
+        });
+        var response = TestResponse.builder()
+                .zonedDateTimes(m)
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))

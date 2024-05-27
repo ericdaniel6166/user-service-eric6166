@@ -33,7 +33,13 @@ import software.amazon.awssdk.services.sqs.model.DeleteQueueResponse;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -250,6 +256,32 @@ public class TestServiceImpl implements TestService {
         Map<String, Object> m = new HashMap<>();
         m.put("dateTimeStr", DateTimeUtils.toLocalDateTime(request.getDateTimeStr(), DateTimeUtils.DEFAULT_DATE_TIME_PATTERN));
         m.put("dateStr", DateTimeUtils.toLocalDate(request.getDateStr(), DateTimeUtils.DEFAULT_DATE_PATTERN));
+
+        m.put("basicIsoDate", LocalDate.from(DateTimeUtils.toTemporalAccessor(request.getBasicIsoDate(), DateTimeFormatter.BASIC_ISO_DATE)));
+        m.put("isoLocalDate", LocalDate.from(DateTimeUtils.toTemporalAccessor(request.getIsoLocalDate(), DateTimeFormatter.ISO_LOCAL_DATE)));
+        TemporalAccessor isoOffsetDate = DateTimeUtils.toTemporalAccessor(request.getIsoOffsetDate(), DateTimeFormatter.ISO_OFFSET_DATE);
+        m.put("isoOffsetDate", LocalDate.from(isoOffsetDate).toString() + ZoneId.from(isoOffsetDate));
+        TemporalAccessor isoDate = DateTimeUtils.toTemporalAccessor(request.getIsoDate(), DateTimeFormatter.ISO_DATE);
+        m.put("isoDate", LocalDate.from(isoDate).toString() + ZoneId.from(isoDate));
+
+        m.put("isoLocalTime", LocalTime.from(DateTimeUtils.toTemporalAccessor(request.getIsoLocalTime(), DateTimeFormatter.ISO_LOCAL_TIME)));
+        m.put("isoOffsetTime", LocalTime.from(DateTimeUtils.toTemporalAccessor(request.getIsoOffsetTime(), DateTimeFormatter.ISO_OFFSET_TIME)).toString() + ZoneId.from(DateTimeUtils.toTemporalAccessor(request.getIsoOffsetTime(), DateTimeFormatter.ISO_OFFSET_TIME)));
+        m.put("isoTime", LocalTime.from(DateTimeUtils.toTemporalAccessor(request.getIsoTime(), DateTimeFormatter.ISO_TIME)).toString() + ZoneId.from(DateTimeUtils.toTemporalAccessor(request.getIsoTime(), DateTimeFormatter.ISO_TIME)));
+
+        m.put("isoLocalDateTime", LocalDateTime.from(DateTimeUtils.toTemporalAccessor(request.getIsoLocalDateTime(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
+        TemporalAccessor isoOffsetDateTime = DateTimeUtils.toTemporalAccessor(request.getIsoOffsetDateTime(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+        m.put("isoOffsetDateTime", LocalDateTime.from(isoOffsetDateTime).toString() + ZoneId.from(isoOffsetDateTime));
+        TemporalAccessor isoZonedDateTime = DateTimeUtils.toTemporalAccessor(request.getIsoZonedDateTime(), DateTimeFormatter.ISO_ZONED_DATE_TIME);
+        m.put("isoZonedDateTime", LocalDateTime.from(isoZonedDateTime).toString() + ZoneId.from(isoZonedDateTime));
+        TemporalAccessor isoDateTime = DateTimeUtils.toTemporalAccessor(request.getIsoDateTime(), DateTimeFormatter.ISO_DATE_TIME);
+        m.put("isoDateTime", LocalDateTime.from(isoDateTime).toString() + ZoneId.from(isoDateTime));
+        TemporalAccessor isoInstant = DateTimeUtils.toTemporalAccessor(request.getIsoInstant(), DateTimeFormatter.ISO_INSTANT);
+        m.put("isoInstant", LocalDateTime.ofInstant(Instant.from(isoInstant), DateTimeUtils.DEFAULT_ZONE_ID).toString());
+        TemporalAccessor rfc1123DateTime = DateTimeUtils.toTemporalAccessor(request.getRfc1123DateTime(), DateTimeFormatter.RFC_1123_DATE_TIME);
+        m.put("rfc1123DateTime", LocalDateTime.from(rfc1123DateTime).toString() + ZoneId.from(rfc1123DateTime));
+
+        m.put("isoOrdinalDate", LocalDate.from(DateTimeUtils.toTemporalAccessor(request.getIsoOrdinalDate(), DateTimeFormatter.ISO_ORDINAL_DATE)));
+        m.put("isoWeekDate", LocalDate.from(DateTimeUtils.toTemporalAccessor(request.getIsoWeekDate(), DateTimeFormatter.ISO_WEEK_DATE)));
         return m;
     }
 

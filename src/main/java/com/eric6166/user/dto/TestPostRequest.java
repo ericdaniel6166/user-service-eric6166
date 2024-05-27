@@ -1,7 +1,8 @@
 package com.eric6166.user.dto;
 
-import com.eric6166.base.utils.DateTimeUtils;
+import com.eric6166.base.enums.AppDateTimeFormatter;
 import com.eric6166.base.utils.BaseConst;
+import com.eric6166.base.utils.DateTimeUtils;
 import com.eric6166.base.validation.ValidDateTime;
 import com.eric6166.base.validation.ValidNumber;
 import jakarta.validation.constraints.Digits;
@@ -15,6 +16,7 @@ import lombok.experimental.FieldDefaults;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -42,6 +44,39 @@ public class TestPostRequest {
     String digitStr;
     @ValidNumber(flag = ValidNumber.Flag.BIG_INTEGER)
     String longStr;
+
+    @ValidDateTime(formatter = AppDateTimeFormatter.BASIC_ISO_DATE)
+    String basicIsoDate;
+    @ValidDateTime(formatter = AppDateTimeFormatter.ISO_LOCAL_DATE)
+    String isoLocalDate;
+    @ValidDateTime(formatter = AppDateTimeFormatter.ISO_OFFSET_DATE)
+    String isoOffsetDate;
+    @ValidDateTime(formatter = AppDateTimeFormatter.ISO_DATE)
+    String isoDate;
+    @ValidDateTime(formatter = AppDateTimeFormatter.ISO_LOCAL_TIME)
+    String isoLocalTime;
+    @ValidDateTime(formatter = AppDateTimeFormatter.ISO_OFFSET_TIME)
+    String isoOffsetTime;
+    @ValidDateTime(formatter = AppDateTimeFormatter.ISO_TIME)
+    String isoTime;
+    @ValidDateTime(formatter = AppDateTimeFormatter.ISO_LOCAL_DATE_TIME)
+    String isoLocalDateTime;
+    @ValidDateTime(formatter = AppDateTimeFormatter.ISO_OFFSET_DATE_TIME)
+    String isoOffsetDateTime;
+    @ValidDateTime(formatter = AppDateTimeFormatter.ISO_ZONED_DATE_TIME)
+    String isoZonedDateTime;
+    @ValidDateTime(formatter = AppDateTimeFormatter.ISO_DATE_TIME)
+    String isoDateTime;
+    @ValidDateTime(formatter = AppDateTimeFormatter.ISO_ORDINAL_DATE)
+    String isoOrdinalDate;
+    @ValidDateTime(formatter = AppDateTimeFormatter.ISO_WEEK_DATE)
+    String isoWeekDate;
+    @ValidDateTime(formatter = AppDateTimeFormatter.ISO_INSTANT)
+    String isoInstant;
+    @ValidDateTime(formatter = AppDateTimeFormatter.RFC_1123_DATE_TIME)
+    String rfc1123DateTime;
+
+    List<String> zoneIds;
 
 
 }
