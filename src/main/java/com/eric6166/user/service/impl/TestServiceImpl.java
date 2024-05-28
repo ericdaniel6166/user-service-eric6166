@@ -254,8 +254,8 @@ public class TestServiceImpl implements TestService {
     @Override
     public Object testPost(TestPostRequest request) {
         Map<String, Object> m = new HashMap<>();
-        m.put("dateTimeStr", DateTimeUtils.toLocalDateTime(request.getDateTimeStr(), DateTimeUtils.DEFAULT_DATE_TIME_PATTERN));
-        m.put("dateStr", DateTimeUtils.toLocalDate(request.getDateStr(), DateTimeUtils.DEFAULT_DATE_PATTERN));
+        m.put("dateTimeStr", DateTimeUtils.toLocalDateTime(request.getDateTimeStr(), DateTimeUtils.DEFAULT_LOCAL_DATE_TIME_PATTERN));
+        m.put("dateStr", DateTimeUtils.toLocalDate(request.getDateStr(), DateTimeUtils.DEFAULT_LOCAL_DATE_PATTERN));
 
         m.put("basicIsoDate", LocalDate.from(DateTimeUtils.toTemporalAccessor(request.getBasicIsoDate(), DateTimeFormatter.BASIC_ISO_DATE)));
         m.put("isoLocalDate", LocalDate.from(DateTimeUtils.toTemporalAccessor(request.getIsoLocalDate(), DateTimeFormatter.ISO_LOCAL_DATE)));
@@ -289,10 +289,10 @@ public class TestServiceImpl implements TestService {
     public Object testPostForm(TestPostFormRequest request) {
         Map<String, Object> m = new HashMap<>();
         if (StringUtils.isNotBlank(request.getDateTime())) {
-            m.put("dateTimeStr", DateTimeUtils.toLocalDateTime(request.getDateTime(), DateTimeUtils.DEFAULT_DATE_TIME_PATTERN));
+            m.put("dateTimeStr", DateTimeUtils.toLocalDateTime(request.getDateTime(), DateTimeUtils.DEFAULT_LOCAL_DATE_TIME_PATTERN));
         }
         if (StringUtils.isNotBlank(request.getDate())) {
-            m.put("dateStr", DateTimeUtils.toLocalDate(request.getDate(), DateTimeUtils.DEFAULT_DATE_PATTERN));
+            m.put("dateStr", DateTimeUtils.toLocalDate(request.getDate(), DateTimeUtils.DEFAULT_LOCAL_DATE_PATTERN));
         }
         return m;
     }

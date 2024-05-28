@@ -25,6 +25,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -196,12 +197,17 @@ public class TestController {
     public ResponseEntity<Object> testReturn(@RequestBody TestPostRequest request) {
         log.info("TestController.testReturn");
         Map<String, Object> m = new HashMap<>();
-        request.getZoneIds().forEach(s -> {
-            var zonedDateTime = ZonedDateTime.of(LocalDateTime.now(), ZoneOffset.UTC).withZoneSameInstant(ZoneId.of(s));
-            m.put(s, DateTimeUtils.toString(zonedDateTime, DateTimeFormatter.ISO_ZONED_DATE_TIME));
-        });
+        if (CollectionUtils.isNotEmpty(request.getZoneIds())) {
+            request.getZoneIds().forEach(s -> {
+                var zonedDateTime = ZonedDateTime.of(LocalDateTime.now(), ZoneOffset.UTC).withZoneSameInstant(ZoneId.of(s));
+                m.put(s, DateTimeUtils.toString(zonedDateTime, DateTimeFormatter.ISO_ZONED_DATE_TIME));
+            });
+        }
+        var zonedDateTime1 = ZonedDateTime.of(LocalDateTime.now(), ZoneOffset.UTC).withZoneSameInstant(ZoneId.of(request.getZoneId()));
+        var zonedDateTime = ZonedDateTime.now(ZoneId.of(request.getZoneId()));
         var response = TestResponse.builder()
                 .zonedDateTimes(m)
+                .zonedDateTime(zonedDateTime)
                 .build();
         return ResponseEntity.ok(response);
     }
