@@ -25,6 +25,9 @@ public class TestPostRequest {
     LocalDate date;
     @ValidDateTime(flag = ValidDateTime.Flag.LOCAL_DATE_TIME, pattern = DateTimeUtils.DEFAULT_DATE_TIME_PATTERN)
     String dateTimeStr;
+    @ValidDateTime(flag = ValidDateTime.Flag.ZONED_DATE_TIME, pattern = DateTimeUtils.DEFAULT_ZONED_DATE_TIME_PATTERN)
+    String zonedDateTimeStr;
+
     @ValidDateTime(flag = ValidDateTime.Flag.LOCAL_DATE, pattern = DateTimeUtils.DEFAULT_DATE_PATTERN)
     String dateStr;
     @ValidDateTime(flag = ValidDateTime.Flag.LOCAL_TIME, pattern = DateTimeUtils.DEFAULT_TIME_PATTERN)
