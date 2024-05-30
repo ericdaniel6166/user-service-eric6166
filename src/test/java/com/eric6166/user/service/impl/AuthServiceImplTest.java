@@ -1,7 +1,5 @@
 package com.eric6166.user.service.impl;
 
-import brave.Span;
-import brave.Tracer;
 import com.eric6166.base.dto.MessageResponse;
 import com.eric6166.base.exception.AppException;
 import com.eric6166.base.exception.AppValidationException;
@@ -47,12 +45,12 @@ class AuthServiceImplTest {
     UserValidation userValidation;
     @Mock
     MessageSource messageSource;
-    @Mock
-    Tracer tracer;
-    @Mock
-    Span span;
-    @Mock
-    Tracer.SpanInScope ws;
+    //    @Mock
+//    Tracer tracer;
+//    @Mock
+//    Span span;
+//    @Mock
+//    Tracer.SpanInScope ws;
     @Mock
     Response response;
     @Mock
@@ -66,24 +64,16 @@ class AuthServiceImplTest {
         registerAccountRequest = mockRegisterAccountRequest("customer", "customer@customer.com");
     }
 
-    @BeforeEach
-    void setUp() {
-        Mockito.when(tracer.nextSpan()).thenReturn(span);
-        Mockito.when(span.name(Mockito.anyString())).thenReturn(span);
-        Mockito.when(span.start()).thenReturn(span);
-        Mockito.when(tracer.withSpanInScope(span)).thenReturn(ws);
+    private static GroupRepresentation mockGroupRepresentation(String path) {
+        var group = new GroupRepresentation();
+        group.setPath(path);
+        return group;
     }
 
 //
 //    @AfterEach
 //    void tearDown() {
 //    }
-
-    private static GroupRepresentation mockGroupRepresentation(String path) {
-        var group = new GroupRepresentation();
-        group.setPath(path);
-        return group;
-    }
 
     private static RegisterAccountRequest mockRegisterAccountRequest(String username, String email) {
         return RegisterAccountRequest.builder()
@@ -92,6 +82,14 @@ class AuthServiceImplTest {
                 .password("P@ssw0rd")
                 .confirmPassword("P@ssw0rd")
                 .build();
+    }
+
+    @BeforeEach
+    void setUp() {
+//        Mockito.when(tracer.nextSpan()).thenReturn(span);
+//        Mockito.when(span.name(Mockito.anyString())).thenReturn(span);
+//        Mockito.when(span.start()).thenReturn(span);
+//        Mockito.when(tracer.withSpanInScope(span)).thenReturn(ws);
     }
 
     @Test

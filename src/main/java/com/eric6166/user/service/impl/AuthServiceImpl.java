@@ -1,6 +1,5 @@
 package com.eric6166.user.service.impl;
 
-import brave.Tracer;
 import com.eric6166.base.dto.MessageResponse;
 import com.eric6166.base.exception.AppException;
 import com.eric6166.base.utils.BaseMessageConst;
@@ -40,7 +39,6 @@ public class AuthServiceImpl implements AuthService {
     KeycloakAminClient keycloakAminClient;
     UserValidation userValidation;
     MessageSource messageSource;
-    Tracer tracer;
     AppSecurityUtils appSecurityUtils;
 
     @Override
@@ -92,51 +90,35 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public MessageResponse register(RegisterAccountRequest request) throws AppException {
         log.info("AuthServiceImpl.register"); // comment // for local testing
-        var span = tracer.nextSpan().name("register").start();
-        try (var ws = tracer.withSpanInScope(span)) {
-            userValidation.validateUsernameExisted(request.getUsername());
-            userValidation.validateEmailExisted(request.getEmail());
-            var user = new UserRepresentation();
-            user.setUsername(request.getUsername());
-            user.setEmail(request.getEmail());
+        userValidation.validateUsernameExisted(request.getUsername());
+        userValidation.validateEmailExisted(request.getEmail());
+        var user = new UserRepresentation();
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
 
-            var credential = new CredentialRepresentation();
-            credential.setTemporary(false);
-            credential.setType(CredentialRepresentation.PASSWORD);
-            credential.setValue(request.getPassword()); // improvement: encryption/decryption
+        var credential = new CredentialRepresentation();
+        credential.setTemporary(false);
+        credential.setType(CredentialRepresentation.PASSWORD);
+        credential.setValue(request.getPassword()); // improvement: encryption/decryption
 
-            user.setCredentials(Collections.singletonList(credential));
-            span.annotate("keycloakService.searchGroupByName Start");
-            var customerOpt = keycloakAminClient.searchGroupByName(SecurityConst.GROUP_CUSTOMER);
-            span.annotate("keycloakService.searchGroupByName End");
-            if (customerOpt.isPresent()) {
-                var customer = customerOpt.get();
-                user.setGroups(Collections.singletonList(customer.getPath()));
-            }
-            user.setEnabled(true); //improvement later
-            span.annotate("keycloakService.createUser Start");
-            var response = keycloakAminClient.createUser(user);
-            span.annotate("keycloakService.createUser End");
-
-            try {
-                var createdId = CreatedResponseUtil.getCreatedId(response);
-                span.tag("keycloakService.createUser response createdId", createdId);
-            } catch (WebApplicationException e) {
-                span.error(e);
-                throw new ResponseStatusException(e.getResponse().getStatus(), e.getMessage(), e);
-            }
-            var res = messageSource.getMessage(BaseMessageConst.MGS_RES_ACCOUNT, null, LocaleContextHolder.getLocale());
-            var msg = messageSource.getMessage(BaseMessageConst.MSG_INF_RESOURCE_CREATED, new String[]{res}, LocaleContextHolder.getLocale());
-            span.tag("msg", msg);
-            return MessageResponse.builder()
-                    .message(StringUtils.capitalize(msg))
-                    .build();
-        } catch (RuntimeException e) {
-            log.info("e: {} , errorMessage: {}", e.getClass().getName(), e.getMessage()); // comment // for local testing
-            span.error(e);
-            throw e;
-        } finally {
-            span.finish();
+        user.setCredentials(Collections.singletonList(credential));
+        var customerOpt = keycloakAminClient.searchGroupByName(SecurityConst.GROUP_CUSTOMER);
+        if (customerOpt.isPresent()) {
+            var customer = customerOpt.get();
+            user.setGroups(Collections.singletonList(customer.getPath()));
         }
+        user.setEnabled(true); //improvement later
+        var response = keycloakAminClient.createUser(user);
+
+        try {
+            CreatedResponseUtil.getCreatedId(response);
+        } catch (WebApplicationException e) {
+            throw new ResponseStatusException(e.getResponse().getStatus(), e.getMessage(), e);
+        }
+        var res = messageSource.getMessage(BaseMessageConst.MGS_RES_ACCOUNT, null, LocaleContextHolder.getLocale());
+        var msg = messageSource.getMessage(BaseMessageConst.MSG_INF_RESOURCE_CREATED, new String[]{res}, LocaleContextHolder.getLocale());
+        return MessageResponse.builder()
+                .message(StringUtils.capitalize(msg))
+                .build();
     }
 }
