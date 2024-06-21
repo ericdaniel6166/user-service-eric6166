@@ -101,7 +101,7 @@ public class AuthServiceImpl implements AuthService {
         if (userValidation.isUsernameExisted(request.getUsername())) {
             var res = messageSource.getMessage(BaseMessageConst.MGS_RES_USERNAME, null, LocaleContextHolder.getLocale());
             var msg = messageSource.getMessage(BaseMessageConst.MSG_ERR_RESOURCE_EXISTED, new String[]{res}, LocaleContextHolder.getLocale());
-            errorDetails.add(new ValidationErrorDetail(BaseConst.FIELD_EMAIL, StringUtils.capitalize(msg)));
+            errorDetails.add(new ValidationErrorDetail(BaseConst.FIELD_USERNAME, StringUtils.capitalize(msg)));
         }
         if (userValidation.isEmailExisted(request.getEmail())) {
             var res = messageSource.getMessage(BaseMessageConst.MGS_RES_EMAIL, null, LocaleContextHolder.getLocale());
