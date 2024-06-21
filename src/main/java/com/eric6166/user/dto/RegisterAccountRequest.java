@@ -15,9 +15,9 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
+@PasswordMatches
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@PasswordMatches
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
