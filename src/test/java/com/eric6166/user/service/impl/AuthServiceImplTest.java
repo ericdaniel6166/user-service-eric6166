@@ -98,6 +98,9 @@ class AuthServiceImplTest {
         var e = Assertions.assertThrows(ResponseStatusException.class,
                 () -> {
 
+                    Mockito.when(userValidation.isUsernameExisted(registerAccountRequest.getUsername())).thenReturn(false);
+                    Mockito.when(userValidation.isEmailExisted(registerAccountRequest.getEmail())).thenReturn(false);
+
                     Mockito.when(keycloakAminClient.searchGroupByName(SecurityConst.GROUP_CUSTOMER)).thenReturn(Optional.of(customerGroup));
                     Mockito.when(keycloakAminClient.createUser(Mockito.any())).thenReturn(response);
 
@@ -119,7 +122,7 @@ class AuthServiceImplTest {
         Assertions.assertThrows(AppValidationException.class,
                 () -> {
 
-                    Mockito.doThrow(AppValidationException.class).when(userValidation).validateUsernameExisted(registerAccountRequest.getUsername());
+                    Mockito.when(userValidation.isUsernameExisted(registerAccountRequest.getUsername())).thenReturn(true);
 
                     authService.register(registerAccountRequest);
                 });
@@ -129,8 +132,7 @@ class AuthServiceImplTest {
     void register_givenEmailExisted_thenThrowAppValidationException() {
         Assertions.assertThrows(AppValidationException.class,
                 () -> {
-
-                    Mockito.doThrow(AppValidationException.class).when(userValidation).validateEmailExisted(registerAccountRequest.getEmail());
+                    Mockito.when(userValidation.isEmailExisted(registerAccountRequest.getEmail())).thenReturn(true);
 
                     authService.register(registerAccountRequest);
                 });
@@ -138,6 +140,9 @@ class AuthServiceImplTest {
 
     @Test
     void register_thenReturnSuccess() throws AppException {
+
+        Mockito.when(userValidation.isUsernameExisted(registerAccountRequest.getUsername())).thenReturn(false);
+        Mockito.when(userValidation.isEmailExisted(registerAccountRequest.getEmail())).thenReturn(false);
 
         Mockito.when(keycloakAminClient.searchGroupByName(SecurityConst.GROUP_CUSTOMER)).thenReturn(Optional.of(customerGroup));
         Mockito.when(keycloakAminClient.createUser(Mockito.any())).thenReturn(response);

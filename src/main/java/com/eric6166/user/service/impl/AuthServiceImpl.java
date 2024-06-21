@@ -2,6 +2,10 @@ package com.eric6166.user.service.impl;
 
 import com.eric6166.base.dto.MessageResponse;
 import com.eric6166.base.exception.AppException;
+import com.eric6166.base.exception.AppValidationException;
+import com.eric6166.base.exception.ErrorDetail;
+import com.eric6166.base.exception.ValidationErrorDetail;
+import com.eric6166.base.utils.BaseConst;
 import com.eric6166.base.utils.BaseMessageConst;
 import com.eric6166.keycloak.config.KeycloakAminClient;
 import com.eric6166.keycloak.validation.UserValidation;
@@ -15,6 +19,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.representations.idm.CredentialRepresentation;
@@ -26,8 +31,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -90,8 +97,20 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public MessageResponse register(RegisterAccountRequest request) throws AppException {
         log.info("AuthServiceImpl.register"); // comment // for local testing
-        userValidation.validateUsernameExisted(request.getUsername());
-        userValidation.validateEmailExisted(request.getEmail());
+        List<ErrorDetail> errorDetails = new ArrayList<>();
+        if (userValidation.isUsernameExisted(request.getUsername())) {
+            var res = messageSource.getMessage(BaseMessageConst.MGS_RES_USERNAME, null, LocaleContextHolder.getLocale());
+            var msg = messageSource.getMessage(BaseMessageConst.MSG_ERR_RESOURCE_EXISTED, new String[]{res}, LocaleContextHolder.getLocale());
+            errorDetails.add(new ValidationErrorDetail(BaseConst.FIELD_EMAIL, StringUtils.capitalize(msg)));
+        }
+        if (userValidation.isEmailExisted(request.getEmail())) {
+            var res = messageSource.getMessage(BaseMessageConst.MGS_RES_EMAIL, null, LocaleContextHolder.getLocale());
+            var msg = messageSource.getMessage(BaseMessageConst.MSG_ERR_RESOURCE_EXISTED, new String[]{res}, LocaleContextHolder.getLocale());
+            errorDetails.add(new ValidationErrorDetail(BaseConst.FIELD_EMAIL, StringUtils.capitalize(msg)));
+        }
+        if (CollectionUtils.isNotEmpty(errorDetails)) {
+            throw new AppValidationException(errorDetails);
+        }
         var user = new UserRepresentation();
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
