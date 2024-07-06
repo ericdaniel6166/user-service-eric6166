@@ -149,7 +149,7 @@ class AuthServiceImplTest {
 
         Mockito.when(response.getLocation()).thenReturn(location);
         Mockito.when(response.getStatusInfo()).thenReturn(Response.Status.CREATED);
-        Mockito.when(location.getPath()).thenReturn(RandomStringUtils.randomAlphabetic(50, 100));
+        Mockito.when(location.getPath()).thenReturn(RandomStringUtils.random(255));
 
         var res = "account";
         Mockito.when(messageSource.getMessage(BaseMessageConst.MGS_RES_ACCOUNT, null, LocaleContextHolder.getLocale())).thenReturn(res);
