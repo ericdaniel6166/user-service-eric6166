@@ -243,7 +243,7 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public Object presignGetObject(TestS3ObjectRequest request) throws AppException {
-        var signatureDuration = request.getSignatureDuration() != null ? Duration.ofMinutes(request.getSignatureDuration()) : null;
+        var signatureDuration = Duration.ofMinutes(request.getSignatureDuration() != null ? request.getSignatureDuration() : 10);
         var o = appS3Client.presignGetObject(request.getBucket(), request.getKey(), signatureDuration);
         Map<String, Object> r = new HashMap<>();
         r.put("url", o.url().toString());
