@@ -15,6 +15,7 @@ import com.eric6166.user.dto.TestAWSUploadRequest;
 import com.eric6166.user.dto.TestPostFormRequest;
 import com.eric6166.user.dto.TestPostRequest;
 import com.eric6166.user.dto.TestS3ObjectRequest;
+import com.eric6166.user.dto.TestSqsBatchDeleteDto;
 import com.eric6166.user.dto.TestSqsBatchDeleteRequest;
 import com.eric6166.user.dto.TestSqsBatchRequest;
 import com.eric6166.user.dto.TestSqsRequest;
@@ -28,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import software.amazon.awssdk.services.sqs.model.DeleteMessageBatchResponse;
 import software.amazon.awssdk.services.sqs.model.DeleteQueueResponse;
 
@@ -210,16 +212,19 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public Object processMessage(TestSqsBatchDeleteRequest request) throws AppException {
-        List<Map<String, String>> receiveMessage = receiveMessage(request.getQueueName(), request.getMaxNumberOfMessages());
-        if (receiveMessage.size() > 0) {
-            request.setMessages(receiveMessage.stream().map(i -> {
-                var m = new TestSqsBatchDeleteRequest.Message();
-                m.setReceiptHandle(i.get("receiptHandle"));
-                m.setId(i.get("messageId"));
-                return m;
-            }).toList());
+        var receiveMessage = receiveMessage(request.getQueueName(), request.getMaxNumberOfMessages());
+        if (!CollectionUtils.isEmpty(receiveMessage)) {
+            var testSqsBatchDeleteDto = TestSqsBatchDeleteDto.builder()
+                    .messages(receiveMessage.stream()
+                            .map(i -> {
+                                var m = new TestSqsBatchDeleteDto.Message();
+                                m.setReceiptHandle(i.get("receiptHandle"));
+                                m.setId(i.get("messageId"));
+                                return m;
+                            }).toList())
+                    .build();
             Map<String, Object> response = new HashMap<>();
-            DeleteMessageBatchResponse o = appSqsClient.deleteMessageBatchByQueueName(request.getQueueName(), request);
+            DeleteMessageBatchResponse o = appSqsClient.deleteMessageBatchByQueueName(request.getQueueName(), testSqsBatchDeleteDto);
             response.put("hasSuccessful", o.hasSuccessful());
             response.put("hasFailed", o.hasFailed());
             response.put("failed.size", o.failed().size());
