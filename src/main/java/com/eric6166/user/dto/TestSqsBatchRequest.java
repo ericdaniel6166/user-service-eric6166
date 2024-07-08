@@ -5,25 +5,22 @@ import com.eric6166.aws.sqs.SqsSendMessageBatchRequestEntry;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
 import lombok.Data;
-import lombok.experimental.FieldDefaults;
 
 import java.util.Collection;
 
 @Data
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class TestSqsBatchRequest implements SqsSendMessageBatchRequestEntries {
 
     @NotBlank
     @NotEmpty
-    Collection<Message> messages;
+    private Collection<Message> messages;
     @NotNull
-    Integer delaySeconds;
+    private Integer delaySeconds;
     @NotBlank
-    String queueName;
+    private String queueName;
     @NotBlank
-    String messageGroupId;
+    private String messageGroupId;
 
     @Override
     public Collection<SqsSendMessageBatchRequestEntry> getSqsSendMessageBatchRequestEntries() {
@@ -31,10 +28,9 @@ public class TestSqsBatchRequest implements SqsSendMessageBatchRequestEntries {
     }
 
     @Data
-    @FieldDefaults(level = AccessLevel.PRIVATE)
     public static class Message implements SqsSendMessageBatchRequestEntry {
-        String messageBody;
-        String id;
+        private String messageBody;
+        private String id;
 
     }
 }

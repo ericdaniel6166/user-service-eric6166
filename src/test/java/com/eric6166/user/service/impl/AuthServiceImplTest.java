@@ -10,8 +10,6 @@ import com.eric6166.security.utils.AppSecurityUtils;
 import com.eric6166.security.utils.SecurityConst;
 import com.eric6166.user.dto.RegisterAccountRequest;
 import jakarta.ws.rs.core.Response;
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
@@ -32,31 +30,30 @@ import java.net.URI;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
-@FieldDefaults(level = AccessLevel.PRIVATE)
 class AuthServiceImplTest {
 
     private static GroupRepresentation customerGroup;
     private static RegisterAccountRequest registerAccountRequest;
     @InjectMocks
-    AuthServiceImpl authService;
+    private AuthServiceImpl authService;
     @Mock
-    KeycloakAminClient keycloakAminClient;
+    private KeycloakAminClient keycloakAminClient;
     @Mock
-    UserValidation userValidation;
+    private UserValidation userValidation;
     @Mock
-    MessageSource messageSource;
-    //    @Mock
-//    Tracer tracer;
+    private MessageSource messageSource;
+    //        @Mock
+//    private Tracer tracer;
 //    @Mock
-//    Span span;
+//    private Span span;
 //    @Mock
-//    Tracer.SpanInScope ws;
+//    private Tracer.SpanInScope ws;
     @Mock
-    Response response;
+    private Response response;
     @Mock
-    URI location;
+    private URI location;
     @Mock
-    AppSecurityUtils appSecurityUtils;
+    private AppSecurityUtils appSecurityUtils;
 
     @BeforeAll
     static void setUpAll() {

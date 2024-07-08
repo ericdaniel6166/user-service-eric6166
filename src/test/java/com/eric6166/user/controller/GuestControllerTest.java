@@ -2,8 +2,6 @@ package com.eric6166.user.controller;
 
 import com.eric6166.base.utils.TestConst;
 import com.eric6166.user.service.TestService;
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -18,13 +16,12 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.nio.charset.StandardCharsets;
 
 @WebMvcTest(controllers = {GuestController.class})
-@FieldDefaults(level = AccessLevel.PRIVATE)
 class GuestControllerTest {
 
     @Autowired
-    MockMvc mvc;
+    private MockMvc mvc;
     @MockBean
-    TestService testService;
+    private TestService testService;
 
     @Test
     void test() throws Exception {

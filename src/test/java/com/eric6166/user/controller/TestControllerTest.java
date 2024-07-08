@@ -2,8 +2,6 @@ package com.eric6166.user.controller;
 
 import com.eric6166.base.utils.TestConst;
 import com.eric6166.user.service.TestService;
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,14 +17,13 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.nio.charset.StandardCharsets;
 
 @WebMvcTest(controllers = {TestController.class})
-@FieldDefaults(level = AccessLevel.PRIVATE)
 class TestControllerTest {
 
     private static final String URL_TEMPLATE = "/test";
     @Autowired
-    MockMvc mvc;
+    private MockMvc mvc;
     @MockBean
-    TestService testService;
+    private TestService testService;
 
     @Test
     void testFeign() throws Exception {

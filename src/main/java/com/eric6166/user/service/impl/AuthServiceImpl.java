@@ -15,9 +15,7 @@ import com.eric6166.user.dto.GetTokenRequest;
 import com.eric6166.user.dto.RegisterAccountRequest;
 import com.eric6166.user.service.AuthService;
 import jakarta.ws.rs.WebApplicationException;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -40,13 +38,12 @@ import java.util.Map;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class AuthServiceImpl implements AuthService {
 
-    KeycloakAminClient keycloakAminClient;
-    UserValidation userValidation;
-    MessageSource messageSource;
-    AppSecurityUtils appSecurityUtils;
+    private final KeycloakAminClient keycloakAminClient;
+    private final UserValidation userValidation;
+    private final MessageSource messageSource;
+    private final AppSecurityUtils appSecurityUtils;
 
     @Override
     public Object test() {

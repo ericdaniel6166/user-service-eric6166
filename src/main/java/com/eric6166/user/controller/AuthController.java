@@ -6,9 +6,7 @@ import com.eric6166.user.dto.GetTokenRequest;
 import com.eric6166.user.dto.RegisterAccountRequest;
 import com.eric6166.user.service.AuthService;
 import jakarta.validation.Valid;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -25,10 +23,9 @@ import java.io.IOException;
 @Validated
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthController {
 
-    AuthService authService;
+    private final AuthService authService;
 
     @GetMapping("/test")
     public ResponseEntity<Object> test() throws AppException, IOException {

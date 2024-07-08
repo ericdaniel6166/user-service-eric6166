@@ -21,9 +21,7 @@ import com.eric6166.user.dto.TestSqsBatchRequest;
 import com.eric6166.user.dto.TestSqsRequest;
 import com.eric6166.user.dto.TestUploadRequest;
 import com.eric6166.user.service.TestService;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -50,16 +48,15 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class TestServiceImpl implements TestService {
 
-    InventoryClient inventoryClient;
-    AppSecurityUtils appSecurityUtils;
-    KafkaTemplate<String, Object> kafkaTemplate;
-    KafkaProducerProps kafkaProducerProps;
-    Tracer tracer;
-    AppS3Client appS3Client;
-    AppSqsClient appSqsClient;
+    private final InventoryClient inventoryClient;
+    private final AppSecurityUtils appSecurityUtils;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final KafkaProducerProps kafkaProducerProps;
+    private final Tracer tracer;
+    private final AppS3Client appS3Client;
+    private final AppSqsClient appSqsClient;
 
     @Override
     public Object isBucketExistedBucket(String bucket) throws AppException {
