@@ -5,7 +5,7 @@ import com.eric6166.base.exception.AppException;
 import com.eric6166.base.exception.AppValidationException;
 import com.eric6166.base.utils.BaseMessageConst;
 import com.eric6166.keycloak.config.KeycloakAminClient;
-import com.eric6166.keycloak.validation.UserValidation;
+import com.eric6166.keycloak.validation.UserValidator;
 import com.eric6166.security.utils.AppSecurityUtils;
 import com.eric6166.security.utils.SecurityConst;
 import com.eric6166.user.dto.RegisterAccountRequest;
@@ -39,7 +39,7 @@ class AuthServiceImplTest {
     @Mock
     private KeycloakAminClient keycloakAminClient;
     @Mock
-    private UserValidation userValidation;
+    private UserValidator userValidator;
     @Mock
     private MessageSource messageSource;
     //        @Mock
@@ -95,8 +95,8 @@ class AuthServiceImplTest {
         var e = Assertions.assertThrows(ResponseStatusException.class,
                 () -> {
 
-                    Mockito.when(userValidation.isUsernameExisted(registerAccountRequest.getUsername())).thenReturn(false);
-                    Mockito.when(userValidation.isEmailExisted(registerAccountRequest.getEmail())).thenReturn(false);
+                    Mockito.when(userValidator.isUsernameExisted(registerAccountRequest.getUsername())).thenReturn(false);
+                    Mockito.when(userValidator.isEmailExisted(registerAccountRequest.getEmail())).thenReturn(false);
 
                     Mockito.when(keycloakAminClient.searchGroupByName(SecurityConst.GROUP_CUSTOMER)).thenReturn(Optional.of(customerGroup));
                     Mockito.when(keycloakAminClient.createUser(Mockito.any())).thenReturn(response);
@@ -119,7 +119,7 @@ class AuthServiceImplTest {
         Assertions.assertThrows(AppValidationException.class,
                 () -> {
 
-                    Mockito.when(userValidation.isUsernameExisted(registerAccountRequest.getUsername())).thenReturn(true);
+                    Mockito.when(userValidator.isUsernameExisted(registerAccountRequest.getUsername())).thenReturn(true);
 
                     authService.register(registerAccountRequest);
                 });
@@ -129,7 +129,7 @@ class AuthServiceImplTest {
     void register_givenEmailExisted_thenThrowAppValidationException() {
         Assertions.assertThrows(AppValidationException.class,
                 () -> {
-                    Mockito.when(userValidation.isEmailExisted(registerAccountRequest.getEmail())).thenReturn(true);
+                    Mockito.when(userValidator.isEmailExisted(registerAccountRequest.getEmail())).thenReturn(true);
 
                     authService.register(registerAccountRequest);
                 });
@@ -138,8 +138,8 @@ class AuthServiceImplTest {
     @Test
     void register_thenReturnSuccess() throws AppException {
 
-        Mockito.when(userValidation.isUsernameExisted(registerAccountRequest.getUsername())).thenReturn(false);
-        Mockito.when(userValidation.isEmailExisted(registerAccountRequest.getEmail())).thenReturn(false);
+        Mockito.when(userValidator.isUsernameExisted(registerAccountRequest.getUsername())).thenReturn(false);
+        Mockito.when(userValidator.isEmailExisted(registerAccountRequest.getEmail())).thenReturn(false);
 
         Mockito.when(keycloakAminClient.searchGroupByName(SecurityConst.GROUP_CUSTOMER)).thenReturn(Optional.of(customerGroup));
         Mockito.when(keycloakAminClient.createUser(Mockito.any())).thenReturn(response);

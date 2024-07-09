@@ -8,7 +8,7 @@ import com.eric6166.base.exception.ValidationErrorDetail;
 import com.eric6166.base.utils.BaseConst;
 import com.eric6166.base.utils.BaseMessageConst;
 import com.eric6166.keycloak.config.KeycloakAminClient;
-import com.eric6166.keycloak.validation.UserValidation;
+import com.eric6166.keycloak.validation.UserValidator;
 import com.eric6166.security.utils.AppSecurityUtils;
 import com.eric6166.security.utils.SecurityConst;
 import com.eric6166.user.dto.GetTokenRequest;
@@ -41,7 +41,7 @@ import java.util.Map;
 public class AuthServiceImpl implements AuthService {
 
     private final KeycloakAminClient keycloakAminClient;
-    private final UserValidation userValidation;
+    private final UserValidator userValidator;
     private final MessageSource messageSource;
     private final AppSecurityUtils appSecurityUtils;
 
@@ -95,12 +95,12 @@ public class AuthServiceImpl implements AuthService {
     public MessageResponse register(RegisterAccountRequest request) throws AppException {
         log.info("AuthServiceImpl.register"); // comment // for local testing
         List<ErrorDetail> errorDetails = new ArrayList<>();
-        if (userValidation.isUsernameExisted(request.getUsername())) {
+        if (userValidator.isUsernameExisted(request.getUsername())) {
             var res = messageSource.getMessage(BaseMessageConst.MGS_RES_USERNAME, null, LocaleContextHolder.getLocale());
             var msg = messageSource.getMessage(BaseMessageConst.MSG_ERR_RESOURCE_EXISTED, new String[]{res}, LocaleContextHolder.getLocale());
             errorDetails.add(new ValidationErrorDetail(BaseConst.FIELD_USERNAME, StringUtils.capitalize(msg)));
         }
-        if (userValidation.isEmailExisted(request.getEmail())) {
+        if (userValidator.isEmailExisted(request.getEmail())) {
             var res = messageSource.getMessage(BaseMessageConst.MGS_RES_EMAIL, null, LocaleContextHolder.getLocale());
             var msg = messageSource.getMessage(BaseMessageConst.MSG_ERR_RESOURCE_EXISTED, new String[]{res}, LocaleContextHolder.getLocale());
             errorDetails.add(new ValidationErrorDetail(BaseConst.FIELD_EMAIL, StringUtils.capitalize(msg)));
