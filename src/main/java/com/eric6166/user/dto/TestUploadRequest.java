@@ -13,8 +13,8 @@ public class TestUploadRequest {
 
     @NotNull
     @ValidFileMaxSize(maxSize = 10)
-    @ValidFileExtension(extensions = {BaseConst.EXTENSION_PDF})
-    @ValidFileMimeType(mimeTypes = {BaseConst.MIME_TYPE_PDF})
+    @ValidFileExtension(extensions = {"pdf"})
+    @ValidFileMimeType(mimeTypes = {"application/pdf"})
     private MultipartFile pdfFile;
 
 }
