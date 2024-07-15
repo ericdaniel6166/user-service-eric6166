@@ -1,8 +1,6 @@
 package com.eric6166.user.service.impl;
 
 import brave.Tracer;
-import com.eric6166.aws.s3.AppS3Client;
-import com.eric6166.aws.sqs.AppSqsClient;
 import com.eric6166.base.exception.AppException;
 import com.eric6166.base.utils.DateTimeUtils;
 import com.eric6166.base.utils.TestConst;
@@ -10,15 +8,8 @@ import com.eric6166.common.config.kafka.AppEvent;
 import com.eric6166.security.utils.AppSecurityUtils;
 import com.eric6166.user.config.feign.InventoryClient;
 import com.eric6166.user.config.kafka.KafkaProducerProps;
-import com.eric6166.user.dto.TestAWSRequest;
-import com.eric6166.user.dto.TestAWSUploadRequest;
 import com.eric6166.user.dto.TestPostFormRequest;
 import com.eric6166.user.dto.TestPostRequest;
-import com.eric6166.user.dto.TestS3ObjectRequest;
-import com.eric6166.user.dto.TestSqsBatchDeleteDto;
-import com.eric6166.user.dto.TestSqsBatchDeleteRequest;
-import com.eric6166.user.dto.TestSqsBatchRequest;
-import com.eric6166.user.dto.TestSqsRequest;
 import com.eric6166.user.dto.TestUploadRequest;
 import com.eric6166.user.service.TestService;
 import lombok.RequiredArgsConstructor;
@@ -27,12 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import software.amazon.awssdk.services.sqs.model.DeleteMessageBatchResponse;
-import software.amazon.awssdk.services.sqs.model.DeleteQueueResponse;
 
-import java.io.IOException;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -55,203 +41,203 @@ public class TestServiceImpl implements TestService {
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final KafkaProducerProps kafkaProducerProps;
     private final Tracer tracer;
-    private final AppS3Client appS3Client;
-    private final AppSqsClient appSqsClient;
+//    private final AppS3Client appS3Client;
+//    private final AppSqsClient appSqsClient;
 
-    @Override
-    public Object isBucketExistedBucket(String bucket) throws AppException {
-        var isBucketExisted = appS3Client.isBucketExisted(bucket);
-        Map<String, Object> response = new HashMap<>();
-        response.put("isBucketExisted", isBucketExisted);
-        return response;
-    }
-
-    @Override
-    public Object createBucket(TestAWSRequest request) throws AppException {
-        var o = appS3Client.createBucket(request.getBucket());
-        Map<String, Object> response = new HashMap<>();
-        response.put("location", o.location());
-        return response;
-    }
-
-    @Override
-    public Object deleteBucket(TestAWSRequest request) throws AppException {
-        var o = appS3Client.deleteBucket(request.getBucket());
-        Map<String, Object> response = new HashMap<>();
-        return response;
-    }
-
-    @Override
-    public Object uploadObject(TestAWSUploadRequest request) throws IOException, AppException {
-        var o = appS3Client.uploadObject(request.getBucket(), request.getKey(), request.getFile());
-        Map<String, Object> response = new HashMap<>();
-        response.put("eTag", o.eTag());
-        return response;
-    }
-
-    @Override
-    public Object deleteObject(TestAWSUploadRequest request) throws AppException {
-        var o = appS3Client.deleteObject(request.getBucket(), request.getKey());
-        Map<String, Object> response = new HashMap<>();
-        response.put("deleteMarker", o.deleteMarker());
-        return response;
-    }
-
-    @Override
-    public Object listObject(String bucket) throws AppException {
-        var o = appS3Client.listObject(bucket);
-        Map<String, Object> response = new HashMap<>();
-        return o.contents().stream().map(i -> {
-            Map<String, Object> m = new HashMap<>();
-            m.put("key", i.key());
-            m.put("eTag", i.eTag());
-//            m.put("lastModified", LocalDateTime.ofInstant(i.lastModified(), BaseConst.DEFAULT_ZONE_ID));
-//            m.put("owner.id", i.owner().id());
-//            m.put("owner.displayName", i.owner().displayName());
-//            m.put("restoreStatus", i.restoreStatus().toString());
-//            m.put("restoreStatus.isRestoreInProgress", i.restoreStatus().isRestoreInProgress());
-//            m.put("restoreStatus.restoreExpiryDate", LocalDateTime.ofInstant(i.restoreStatus().restoreExpiryDate(), BaseConst.DEFAULT_ZONE_ID));
-            return m;
-        }).toList();
+//    @Override
+//    public Object isBucketExistedBucket(String bucket) throws AppException {
+//        var isBucketExisted = appS3Client.isBucketExisted(bucket);
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("isBucketExisted", isBucketExisted);
 //        return response;
-    }
-
-    @Override
-    public Object getObject(String bucket, String key) throws IOException, AppException {
-        var o = appS3Client.getObject(bucket, key);
-        var o1 = appS3Client.getObjectAsBytes(bucket, key); //
-//        String text = IOUtils.toString(o1.asInputStream(), StandardCharsets.UTF_8.name()); // if file is text, etc
-//        File targetFile = new File("src/main/resources/test.jpg");
-//        FileUtils.copyInputStreamToFile(o1.asInputStream(), targetFile);
-        Map<String, Object> response = new HashMap<>();
-        response.put("acceptRanges", o.response().acceptRanges());
-        response.put("contentLength", o.response().contentLength());
-        response.put("eTag", o.response().eTag());
-//        response.put("expires", LocalDateTime.ofInstant(o.response().expires(), BaseConst.DEFAULT_ZONE_ID));
-        response.put("hasMetadata", o.response().hasMetadata());
-//        response.put("lastModified", LocalDateTime.ofInstant(o.response().lastModified(), BaseConst.DEFAULT_ZONE_ID));
-        response.put("missingMeta", o.response().missingMeta());
-        response.put("metadata", o.response().metadata());
-        response.put("restore", o.response().restore());
-//        response.put("serverSideEncryption", o.response().serverSideEncryption().toString());
-//        response.put("serverSideEncryption.name", o.response().serverSideEncryption().name());
-//        response.put("storageClass", o.response().storageClass().toString());
-//        response.put("storageClass.name", o.response().storageClass().name());
-        response.put("tagCount", o.response().tagCount());
-
-        return response;
-
-    }
-
-    @Override
-    public Object createQueue(TestSqsRequest request) throws AppException {
-        var o = appSqsClient.createQueue(request.getQueueName());
-        Map<String, Object> response = new HashMap<>();
-        response.put("queueUrl", o.queueUrl());
-        return response;
-    }
-
-    @Override
-    public Object getQueueUrl(String queueName) throws AppException {
-        var o = appSqsClient.getQueueUrl(queueName);
-        Map<String, Object> response = new HashMap<>();
-        response.put("queueUrl", o.queueUrl());
-        return response;
-    }
-
-    @Override
-    public Object deleteQueue(TestSqsRequest request) throws AppException {
-        DeleteQueueResponse o;
-        if (StringUtils.isNotBlank(request.getQueueUrl())) {
-            o = appSqsClient.deleteQueueByQueueUrl(request.getQueueUrl());
-
-        } else if (StringUtils.isNotBlank(request.getQueueName())) {
-            o = appSqsClient.deleteQueueByQueueName(request.getQueueName());
-        }
-        Map<String, Object> response = new HashMap<>();
-        return response;
-    }
-
-    @Override
-    public Object sendMessage(TestSqsRequest request) throws AppException {
-        var o = appSqsClient.sendMessageByQueueName(request.getQueueName(), request.getMessage(), request.getDelaySeconds(), request.getMessageGroupId());
-        Map<String, Object> response = new HashMap<>();
-        response.put("messageId", o.messageId());
-        response.put("sequenceNumber", o.sequenceNumber());
-        return response;
-    }
-
-    @Override
-    public Object sendBatchMessage(TestSqsBatchRequest request) throws AppException {
-        request.setMessages(request.getMessages().stream().map(i -> {
-            i.setId(UUID.randomUUID().toString());
-            return i;
-        }).toList());
-        var o = appSqsClient.sendMessageBatchByQueueName(request.getQueueName(), request.getDelaySeconds(), request.getMessageGroupId(), request);
-        Map<String, Object> response = new HashMap<>();
-        response.put("hasSuccessful", o.hasSuccessful());
-        response.put("hasFailed", o.hasFailed());
-        response.put("failed.size", o.failed().size());
-        return response;
-    }
-
-    @Override
-    public List<Map<String, String>> receiveMessage(String queueName, Integer maxNumberOfMessages) throws AppException {
-        var o = appSqsClient.receiveMessageByQueueName(queueName, maxNumberOfMessages);
-        return o.messages().stream().map(i -> {
-            Map<String, String> m = new HashMap<>();
-            m.put("body", i.body());
-            m.put("messageId", i.messageId());
-            m.put("receiptHandle", i.receiptHandle());
-            return m;
-        }).toList();
-    }
-
-    @Override
-    public Object processMessage(TestSqsBatchDeleteRequest request) throws AppException {
-        var receiveMessage = receiveMessage(request.getQueueName(), request.getMaxNumberOfMessages());
-        if (!CollectionUtils.isEmpty(receiveMessage)) {
-            var testSqsBatchDeleteDto = TestSqsBatchDeleteDto.builder()
-                    .messages(receiveMessage.stream()
-                            .map(i -> {
-                                var m = new TestSqsBatchDeleteDto.Message();
-                                m.setReceiptHandle(i.get("receiptHandle"));
-                                m.setId(i.get("messageId"));
-                                return m;
-                            }).toList())
-                    .build();
-            Map<String, Object> response = new HashMap<>();
-            DeleteMessageBatchResponse o = appSqsClient.deleteMessageBatchByQueueName(request.getQueueName(), testSqsBatchDeleteDto);
-            response.put("hasSuccessful", o.hasSuccessful());
-            response.put("hasFailed", o.hasFailed());
-            response.put("failed.size", o.failed().size());
-            response.put("messages", receiveMessage);
-            return response;
-        }
-        return "No Messages Available";
-
-    }
-
-    @Override
-    public Object copyObject(TestS3ObjectRequest request) throws AppException {
-        var o = appS3Client.copyObject(request.getSourceBucket(), request.getSourceKey(), request.getDestinationBucket(), request.getDestinationKey());
-        Map<String, Object> r = new HashMap<>();
-        r.put("copyObjectResult.eTag", o.copyObjectResult().eTag());
-        r.put("copyObjectResult.lastModified", LocalDateTime.ofInstant(o.copyObjectResult().lastModified(), DateTimeUtils.DEFAULT_ZONE_ID).toString());
-        r.put("serverSideEncryption.name", o.serverSideEncryption().name());
-
-        return r;
-    }
-
-    @Override
-    public Object presignGetObject(TestS3ObjectRequest request) throws AppException {
-        var signatureDuration = Duration.ofMinutes(request.getSignatureDuration() != null ? request.getSignatureDuration() : 10);
-        var o = appS3Client.presignGetObject(request.getBucket(), request.getKey(), signatureDuration);
-        Map<String, Object> r = new HashMap<>();
-        r.put("url", o.url().toString());
-        r.put("isBrowserExecutable", o.isBrowserExecutable());
-        return r;
-    }
+//    }
+//
+//    @Override
+//    public Object createBucket(TestAWSRequest request) throws AppException {
+//        var o = appS3Client.createBucket(request.getBucket());
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("location", o.location());
+//        return response;
+//    }
+//
+//    @Override
+//    public Object deleteBucket(TestAWSRequest request) throws AppException {
+//        var o = appS3Client.deleteBucket(request.getBucket());
+//        Map<String, Object> response = new HashMap<>();
+//        return response;
+//    }
+//
+//    @Override
+//    public Object uploadObject(TestAWSUploadRequest request) throws IOException, AppException {
+//        var o = appS3Client.uploadObject(request.getBucket(), request.getKey(), request.getFile());
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("eTag", o.eTag());
+//        return response;
+//    }
+//
+//    @Override
+//    public Object deleteObject(TestAWSUploadRequest request) throws AppException {
+//        var o = appS3Client.deleteObject(request.getBucket(), request.getKey());
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("deleteMarker", o.deleteMarker());
+//        return response;
+//    }
+//
+//    @Override
+//    public Object listObject(String bucket) throws AppException {
+//        var o = appS3Client.listObject(bucket);
+//        Map<String, Object> response = new HashMap<>();
+//        return o.contents().stream().map(i -> {
+//            Map<String, Object> m = new HashMap<>();
+//            m.put("key", i.key());
+//            m.put("eTag", i.eTag());
+////            m.put("lastModified", LocalDateTime.ofInstant(i.lastModified(), BaseConst.DEFAULT_ZONE_ID));
+////            m.put("owner.id", i.owner().id());
+////            m.put("owner.displayName", i.owner().displayName());
+////            m.put("restoreStatus", i.restoreStatus().toString());
+////            m.put("restoreStatus.isRestoreInProgress", i.restoreStatus().isRestoreInProgress());
+////            m.put("restoreStatus.restoreExpiryDate", LocalDateTime.ofInstant(i.restoreStatus().restoreExpiryDate(), BaseConst.DEFAULT_ZONE_ID));
+//            return m;
+//        }).toList();
+////        return response;
+//    }
+//
+//    @Override
+//    public Object getObject(String bucket, String key) throws IOException, AppException {
+//        var o = appS3Client.getObject(bucket, key);
+//        var o1 = appS3Client.getObjectAsBytes(bucket, key); //
+////        String text = IOUtils.toString(o1.asInputStream(), StandardCharsets.UTF_8.name()); // if file is text, etc
+////        File targetFile = new File("src/main/resources/test.jpg");
+////        FileUtils.copyInputStreamToFile(o1.asInputStream(), targetFile);
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("acceptRanges", o.response().acceptRanges());
+//        response.put("contentLength", o.response().contentLength());
+//        response.put("eTag", o.response().eTag());
+////        response.put("expires", LocalDateTime.ofInstant(o.response().expires(), BaseConst.DEFAULT_ZONE_ID));
+//        response.put("hasMetadata", o.response().hasMetadata());
+////        response.put("lastModified", LocalDateTime.ofInstant(o.response().lastModified(), BaseConst.DEFAULT_ZONE_ID));
+//        response.put("missingMeta", o.response().missingMeta());
+//        response.put("metadata", o.response().metadata());
+//        response.put("restore", o.response().restore());
+////        response.put("serverSideEncryption", o.response().serverSideEncryption().toString());
+////        response.put("serverSideEncryption.name", o.response().serverSideEncryption().name());
+////        response.put("storageClass", o.response().storageClass().toString());
+////        response.put("storageClass.name", o.response().storageClass().name());
+//        response.put("tagCount", o.response().tagCount());
+//
+//        return response;
+//
+//    }
+//
+//    @Override
+//    public Object createQueue(TestSqsRequest request) throws AppException {
+//        var o = appSqsClient.createQueue(request.getQueueName());
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("queueUrl", o.queueUrl());
+//        return response;
+//    }
+//
+//    @Override
+//    public Object getQueueUrl(String queueName) throws AppException {
+//        var o = appSqsClient.getQueueUrl(queueName);
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("queueUrl", o.queueUrl());
+//        return response;
+//    }
+//
+//    @Override
+//    public Object deleteQueue(TestSqsRequest request) throws AppException {
+//        DeleteQueueResponse o;
+//        if (StringUtils.isNotBlank(request.getQueueUrl())) {
+//            o = appSqsClient.deleteQueueByQueueUrl(request.getQueueUrl());
+//
+//        } else if (StringUtils.isNotBlank(request.getQueueName())) {
+//            o = appSqsClient.deleteQueueByQueueName(request.getQueueName());
+//        }
+//        Map<String, Object> response = new HashMap<>();
+//        return response;
+//    }
+//
+//    @Override
+//    public Object sendMessage(TestSqsRequest request) throws AppException {
+//        var o = appSqsClient.sendMessageByQueueName(request.getQueueName(), request.getMessage(), request.getDelaySeconds(), request.getMessageGroupId());
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("messageId", o.messageId());
+//        response.put("sequenceNumber", o.sequenceNumber());
+//        return response;
+//    }
+//
+//    @Override
+//    public Object sendBatchMessage(TestSqsBatchRequest request) throws AppException {
+//        request.setMessages(request.getMessages().stream().map(i -> {
+//            i.setId(UUID.randomUUID().toString());
+//            return i;
+//        }).toList());
+//        var o = appSqsClient.sendMessageBatchByQueueName(request.getQueueName(), request.getDelaySeconds(), request.getMessageGroupId(), request);
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("hasSuccessful", o.hasSuccessful());
+//        response.put("hasFailed", o.hasFailed());
+//        response.put("failed.size", o.failed().size());
+//        return response;
+//    }
+//
+//    @Override
+//    public List<Map<String, String>> receiveMessage(String queueName, Integer maxNumberOfMessages) throws AppException {
+//        var o = appSqsClient.receiveMessageByQueueName(queueName, maxNumberOfMessages);
+//        return o.messages().stream().map(i -> {
+//            Map<String, String> m = new HashMap<>();
+//            m.put("body", i.body());
+//            m.put("messageId", i.messageId());
+//            m.put("receiptHandle", i.receiptHandle());
+//            return m;
+//        }).toList();
+//    }
+//
+//    @Override
+//    public Object processMessage(TestSqsBatchDeleteRequest request) throws AppException {
+//        var receiveMessage = receiveMessage(request.getQueueName(), request.getMaxNumberOfMessages());
+//        if (!CollectionUtils.isEmpty(receiveMessage)) {
+//            var testSqsBatchDeleteDto = TestSqsBatchDeleteDto.builder()
+//                    .messages(receiveMessage.stream()
+//                            .map(i -> {
+//                                var m = new TestSqsBatchDeleteDto.Message();
+//                                m.setReceiptHandle(i.get("receiptHandle"));
+//                                m.setId(i.get("messageId"));
+//                                return m;
+//                            }).toList())
+//                    .build();
+//            Map<String, Object> response = new HashMap<>();
+//            DeleteMessageBatchResponse o = appSqsClient.deleteMessageBatchByQueueName(request.getQueueName(), testSqsBatchDeleteDto);
+//            response.put("hasSuccessful", o.hasSuccessful());
+//            response.put("hasFailed", o.hasFailed());
+//            response.put("failed.size", o.failed().size());
+//            response.put("messages", receiveMessage);
+//            return response;
+//        }
+//        return "No Messages Available";
+//
+//    }
+//
+//    @Override
+//    public Object copyObject(TestS3ObjectRequest request) throws AppException {
+//        var o = appS3Client.copyObject(request.getSourceBucket(), request.getSourceKey(), request.getDestinationBucket(), request.getDestinationKey());
+//        Map<String, Object> r = new HashMap<>();
+//        r.put("copyObjectResult.eTag", o.copyObjectResult().eTag());
+//        r.put("copyObjectResult.lastModified", LocalDateTime.ofInstant(o.copyObjectResult().lastModified(), DateTimeUtils.DEFAULT_ZONE_ID).toString());
+//        r.put("serverSideEncryption.name", o.serverSideEncryption().name());
+//
+//        return r;
+//    }
+//
+//    @Override
+//    public Object presignGetObject(TestS3ObjectRequest request) throws AppException {
+//        var signatureDuration = Duration.ofMinutes(request.getSignatureDuration() != null ? request.getSignatureDuration() : 10);
+//        var o = appS3Client.presignGetObject(request.getBucket(), request.getKey(), signatureDuration);
+//        Map<String, Object> r = new HashMap<>();
+//        r.put("url", o.url().toString());
+//        r.put("isBrowserExecutable", o.isBrowserExecutable());
+//        return r;
+//    }
 
     @Override
     public Object testPost(TestPostRequest request) {

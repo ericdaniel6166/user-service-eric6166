@@ -56,115 +56,115 @@ public class TestController {
 
     private final TestService testService;
 
-    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
-    @PostMapping(value = "/aws/sqs/queue")
-    public ResponseEntity<Object> createQueue(@RequestBody TestSqsRequest request) throws AppException {
-        log.info("TestController.createQueue");
-        return ResponseEntity.ok(new AppResponse<>(testService.createQueue(request)));
-    }
-
-    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
-    @GetMapping(value = "/aws/sqs/message")
-    public ResponseEntity<Object> receiveMessage(@RequestParam String queueName, @RequestParam(required = false) Integer maxNumberOfMessages) throws AppException {
-        log.info("TestController.receiveMessage");
-        return ResponseEntity.ok(new AppResponse<>(testService.receiveMessage(queueName, maxNumberOfMessages)));
-    }
-
-    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
-    @PostMapping(value = "/aws/sqs/message/process")
-    public ResponseEntity<Object> processMessage(@RequestBody TestSqsBatchDeleteRequest request) throws AppException {
-        log.info("TestController.processMessage");
-        return ResponseEntity.ok(new AppResponse<>(testService.processMessage(request)));
-    }
-
-    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
-    @PostMapping(value = "/aws/sqs/message")
-    public ResponseEntity<Object> sendMessage(@RequestBody TestSqsRequest request) throws AppException {
-        log.info("TestController.sendMessage");
-        return ResponseEntity.ok(new AppResponse<>(testService.sendMessage(request)));
-    }
-
-    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
-    @PostMapping(value = "/aws/sqs/batch-message")
-    public ResponseEntity<Object> sendBatchMessage(@RequestBody TestSqsBatchRequest request) throws AppException {
-        log.info("TestController.sendBatchMessage");
-        return ResponseEntity.ok(new AppResponse<>(testService.sendBatchMessage(request)));
-    }
-
-    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
-    @DeleteMapping(value = "/aws/sqs/queue")
-    public ResponseEntity<Object> deleteQueue(@RequestBody TestSqsRequest request) throws AppException {
-        log.info("TestController.deleteQueue");
-        return ResponseEntity.ok(new AppResponse<>(testService.deleteQueue(request)));
-    }
-
-    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
-    @GetMapping(value = "/aws/sqs/queue")
-    public ResponseEntity<Object> getQueueUrl(@RequestParam String queueName) throws AppException {
-        log.info("TestController.getQueueUrl");
-        return ResponseEntity.ok(new AppResponse<>(testService.getQueueUrl(queueName)));
-    }
-
-    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
-    @GetMapping(value = "/aws/s3/bucket")
-    public ResponseEntity<Object> isBucketExistedBucket(@RequestParam String bucket) throws AppException {
-        log.info("TestController.isBucketExistedBucket");
-        return ResponseEntity.ok(new AppResponse<>(testService.isBucketExistedBucket(bucket)));
-    }
-
-    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
-    @PostMapping(value = "/aws/s3/bucket")
-    public ResponseEntity<Object> createBucket(@RequestBody TestAWSRequest request) throws AppException {
-        log.info("TestController.createBucket");
-        return ResponseEntity.ok(new AppResponse<>(testService.createBucket(request)));
-    }
-
-    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
-    @DeleteMapping(value = "/aws/s3/bucket")
-    public ResponseEntity<Object> deleteBucket(@RequestBody TestAWSRequest request) throws AppException {
-        log.info("TestController.deleteBucket");
-        return ResponseEntity.ok(new AppResponse<>(testService.deleteBucket(request)));
-    }
-
-    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
-    @PostMapping(value = "/aws/s3/object", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Object> uploadObject(@ModelAttribute TestAWSUploadRequest request) throws IOException, AppException {
-        log.info("TestController.uploadObject");
-        return ResponseEntity.ok(new AppResponse<>(testService.uploadObject(request)));
-    }
-
-    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
-    @PostMapping(value = "/aws/s3/object/presign-url")
-    public ResponseEntity<Object> presignGetObject(@RequestBody TestS3ObjectRequest request) throws AppException {
-        log.info("TestController.uploadObject");
-        return ResponseEntity.ok(new AppResponse<>(testService.presignGetObject(request)));
-    }
-
-    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
-    @PostMapping(value = "/aws/s3/object/copy")
-    public ResponseEntity<Object> copyObject(@RequestBody TestS3ObjectRequest request) throws AppException {
-        log.info("TestController.uploadObject");
-        return ResponseEntity.ok(new AppResponse<>(testService.copyObject(request)));
-    }
-
-
-    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
-    @GetMapping(value = "/aws/s3/object")
-    public ResponseEntity<Object> getObject(@RequestParam String bucket, @RequestParam(required = false) String key) throws IOException, AppException {
-        log.info("TestController.object");
-        if (StringUtils.isBlank(key)) {
-            return ResponseEntity.ok(new AppResponse<>(testService.listObject(bucket)));
-        }
-
-        return ResponseEntity.ok(new AppResponse<>(testService.getObject(bucket, key)));
-    }
-
-    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
-    @DeleteMapping(value = "/aws/s3/object")
-    public ResponseEntity<Object> deleteObject(@RequestBody TestAWSUploadRequest request) throws AppException {
-        log.info("TestController.deleteObject");
-        return ResponseEntity.ok(testService.deleteObject(request));
-    }
+//    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+//    @PostMapping(value = "/aws/sqs/queue")
+//    public ResponseEntity<Object> createQueue(@RequestBody TestSqsRequest request) throws AppException {
+//        log.info("TestController.createQueue");
+//        return ResponseEntity.ok(new AppResponse<>(testService.createQueue(request)));
+//    }
+//
+//    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+//    @GetMapping(value = "/aws/sqs/message")
+//    public ResponseEntity<Object> receiveMessage(@RequestParam String queueName, @RequestParam(required = false) Integer maxNumberOfMessages) throws AppException {
+//        log.info("TestController.receiveMessage");
+//        return ResponseEntity.ok(new AppResponse<>(testService.receiveMessage(queueName, maxNumberOfMessages)));
+//    }
+//
+//    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+//    @PostMapping(value = "/aws/sqs/message/process")
+//    public ResponseEntity<Object> processMessage(@RequestBody TestSqsBatchDeleteRequest request) throws AppException {
+//        log.info("TestController.processMessage");
+//        return ResponseEntity.ok(new AppResponse<>(testService.processMessage(request)));
+//    }
+//
+//    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+//    @PostMapping(value = "/aws/sqs/message")
+//    public ResponseEntity<Object> sendMessage(@RequestBody TestSqsRequest request) throws AppException {
+//        log.info("TestController.sendMessage");
+//        return ResponseEntity.ok(new AppResponse<>(testService.sendMessage(request)));
+//    }
+//
+//    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+//    @PostMapping(value = "/aws/sqs/batch-message")
+//    public ResponseEntity<Object> sendBatchMessage(@RequestBody TestSqsBatchRequest request) throws AppException {
+//        log.info("TestController.sendBatchMessage");
+//        return ResponseEntity.ok(new AppResponse<>(testService.sendBatchMessage(request)));
+//    }
+//
+//    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+//    @DeleteMapping(value = "/aws/sqs/queue")
+//    public ResponseEntity<Object> deleteQueue(@RequestBody TestSqsRequest request) throws AppException {
+//        log.info("TestController.deleteQueue");
+//        return ResponseEntity.ok(new AppResponse<>(testService.deleteQueue(request)));
+//    }
+//
+//    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+//    @GetMapping(value = "/aws/sqs/queue")
+//    public ResponseEntity<Object> getQueueUrl(@RequestParam String queueName) throws AppException {
+//        log.info("TestController.getQueueUrl");
+//        return ResponseEntity.ok(new AppResponse<>(testService.getQueueUrl(queueName)));
+//    }
+//
+//    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+//    @GetMapping(value = "/aws/s3/bucket")
+//    public ResponseEntity<Object> isBucketExistedBucket(@RequestParam String bucket) throws AppException {
+//        log.info("TestController.isBucketExistedBucket");
+//        return ResponseEntity.ok(new AppResponse<>(testService.isBucketExistedBucket(bucket)));
+//    }
+//
+//    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+//    @PostMapping(value = "/aws/s3/bucket")
+//    public ResponseEntity<Object> createBucket(@RequestBody TestAWSRequest request) throws AppException {
+//        log.info("TestController.createBucket");
+//        return ResponseEntity.ok(new AppResponse<>(testService.createBucket(request)));
+//    }
+//
+//    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+//    @DeleteMapping(value = "/aws/s3/bucket")
+//    public ResponseEntity<Object> deleteBucket(@RequestBody TestAWSRequest request) throws AppException {
+//        log.info("TestController.deleteBucket");
+//        return ResponseEntity.ok(new AppResponse<>(testService.deleteBucket(request)));
+//    }
+//
+//    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+//    @PostMapping(value = "/aws/s3/object", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+//    public ResponseEntity<Object> uploadObject(@ModelAttribute TestAWSUploadRequest request) throws IOException, AppException {
+//        log.info("TestController.uploadObject");
+//        return ResponseEntity.ok(new AppResponse<>(testService.uploadObject(request)));
+//    }
+//
+//    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+//    @PostMapping(value = "/aws/s3/object/presign-url")
+//    public ResponseEntity<Object> presignGetObject(@RequestBody TestS3ObjectRequest request) throws AppException {
+//        log.info("TestController.uploadObject");
+//        return ResponseEntity.ok(new AppResponse<>(testService.presignGetObject(request)));
+//    }
+//
+//    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+//    @PostMapping(value = "/aws/s3/object/copy")
+//    public ResponseEntity<Object> copyObject(@RequestBody TestS3ObjectRequest request) throws AppException {
+//        log.info("TestController.uploadObject");
+//        return ResponseEntity.ok(new AppResponse<>(testService.copyObject(request)));
+//    }
+//
+//
+//    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+//    @GetMapping(value = "/aws/s3/object")
+//    public ResponseEntity<Object> getObject(@RequestParam String bucket, @RequestParam(required = false) String key) throws IOException, AppException {
+//        log.info("TestController.object");
+//        if (StringUtils.isBlank(key)) {
+//            return ResponseEntity.ok(new AppResponse<>(testService.listObject(bucket)));
+//        }
+//
+//        return ResponseEntity.ok(new AppResponse<>(testService.getObject(bucket, key)));
+//    }
+//
+//    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+//    @DeleteMapping(value = "/aws/s3/object")
+//    public ResponseEntity<Object> deleteObject(@RequestBody TestAWSUploadRequest request) throws AppException {
+//        log.info("TestController.deleteObject");
+//        return ResponseEntity.ok(testService.deleteObject(request));
+//    }
 
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping(value = "/upload", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
