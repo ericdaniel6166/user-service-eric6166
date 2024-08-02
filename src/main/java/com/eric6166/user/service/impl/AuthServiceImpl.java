@@ -3,6 +3,7 @@ package com.eric6166.user.service.impl;
 import com.eric6166.base.dto.MessageResponse;
 import com.eric6166.base.exception.AppException;
 import com.eric6166.base.exception.AppValidationException;
+import com.eric6166.base.exception.ErrorCode;
 import com.eric6166.base.exception.ErrorDetail;
 import com.eric6166.base.exception.ValidationErrorDetail;
 import com.eric6166.base.utils.BaseConst;
@@ -106,7 +107,7 @@ public class AuthServiceImpl implements AuthService {
             errorDetails.add(new ValidationErrorDetail(BaseConst.FIELD_EMAIL, StringUtils.capitalize(msg)));
         }
         if (CollectionUtils.isNotEmpty(errorDetails)) {
-            throw new AppValidationException(errorDetails);
+            throw new AppValidationException(ErrorCode.VALIDATION_ERROR.getReasonPhrase(), errorDetails);
         }
         var user = new UserRepresentation();
         user.setUsername(request.getUsername());
